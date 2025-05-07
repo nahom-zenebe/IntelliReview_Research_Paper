@@ -5,7 +5,7 @@ interface UserRepository {
     suspend fun Signup(name:String,email:String,password:Number,country:String,role:String):usermodel
     suspend fun Login(email:String,password:Number):usermodel
     suspend fun Logout()
-    suspend fun updateprofile(): usermodel
+    suspend fun updateprofile(ProfilePic:String): usermodel
 
 
 }
