@@ -32,17 +32,17 @@ interface NotificationApi {
 
 object NotificationApiClient {
 
-    private const val BASE_URL = "https://localhost:3500/api/"  // Adjust base URL as necessary
+    private const val BASE_URL = "https://localhost:3500/api/"
 
     private val retrofit = Retrofit.Builder()
         .baseUrl(BASE_URL)
-        .client(createOkHttpClient())  // Optional OkHttpClient setup for SSL handling
+        .client(createOkHttpClient())
         .addConverterFactory(GsonConverterFactory.create())
         .build()
 
     val apiService:NotificationApi = retrofit.create(NotificationApi::class.java)
 
-    // Optional: OkHttpClient setup for SSL handling (only if necessary for local dev)
+
     private fun createOkHttpClient(): OkHttpClient {
         return OkHttpClient.Builder()
             .connectTimeout(30, TimeUnit.SECONDS)

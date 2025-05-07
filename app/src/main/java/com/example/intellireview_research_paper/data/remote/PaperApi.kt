@@ -1,8 +1,12 @@
 package com.example.intellireview_research_paper.data.remote
 
 import com.example.intellireview_research_paper.model.papermodel
+import okhttp3.OkHttpClient
 import retrofit2.Response
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.*
+import java.util.concurrent.TimeUnit
 
 interface PaperApi {
 
@@ -48,3 +52,26 @@ interface PaperApi {
     ): Response<papermodel>
 }
 
+
+
+object PaperApiClient {
+
+    private const val BASE_URL = "https://localhost:3500/api"  // Update with your actual base URL
+
+    private val retrofit = Retrofit.Builder()
+        .baseUrl(BASE_URL)
+        .client(createOkHttpClient())  // Optional: You can add an OkHttpClient for SSL or logging
+        .addConverterFactory(GsonConverterFactory.create())  // Gson converter for handling JSON responses
+        .build()
+
+    val apiService: PaperApi = retrofit.create(PaperApi::class.java)
+
+    // Optional: Add custom OkHttpClient (e.g., for logging, SSL handling, etc.)
+    private fun createOkHttpClient(): OkHttpClient {
+        return OkHttpClient.Builder()
+            .connectTimeout(30, TimeUnit.SECONDS)  // Set timeouts
+            .writeTimeout(30, TimeUnit.SECONDS)
+            .readTimeout(30, TimeUnit.SECONDS)
+            .build()
+    }
+}

@@ -2,8 +2,12 @@ package com.example.intellireview_research_paper.data.remote
 
 
 import com.example.intellireview_research_paper.model.usermodel
+import okhttp3.OkHttpClient
 import retrofit2.Response
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.*
+import java.util.concurrent.TimeUnit
 
 interface UserApi {
 
@@ -35,5 +39,27 @@ interface UserApi {
 }
 
 
+
+object UserApiClient {
+
+    private const val BASE_URL = "https://localhost:3500/api/"
+
+    private val retrofit = Retrofit.Builder()
+        .baseUrl(BASE_URL)
+        .client(createOkHttpClient())
+        .addConverterFactory(GsonConverterFactory.create())
+        .build()
+
+    val apiService: UserApi = retrofit.create(UserApi::class.java)
+
+
+    private fun createOkHttpClient(): OkHttpClient {
+        return OkHttpClient.Builder()
+            .connectTimeout(30, TimeUnit.SECONDS)
+            .writeTimeout(30, TimeUnit.SECONDS)
+            .readTimeout(30, TimeUnit.SECONDS)
+            .build()
+    }
+}
 
 
