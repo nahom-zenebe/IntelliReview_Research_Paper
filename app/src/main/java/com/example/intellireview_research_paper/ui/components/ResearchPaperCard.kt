@@ -38,7 +38,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 
-// Example paper card
+// Example paper card usage
 //                ResearchPaperCard(
 //                    title = "Deep Learning Approaches in Medical Imaging",
 //                    imageRes = R.drawable.research_paper,
