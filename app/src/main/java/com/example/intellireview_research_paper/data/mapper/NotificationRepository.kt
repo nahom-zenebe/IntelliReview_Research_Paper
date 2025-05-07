@@ -9,3 +9,5 @@ interface  NotificationRepository {
     suspend fun EditNotification(notificationId:String,title: String,message: String): notificationmodel
 
 }
+
+
