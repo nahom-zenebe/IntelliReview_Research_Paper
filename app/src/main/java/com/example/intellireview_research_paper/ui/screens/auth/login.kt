@@ -21,3 +21,18 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.intellireview_research_paper.R
+
+@Composable
+fun TopBannerImage() {
+    Image(
+        painter = painterResource(id = R.drawable.research_paper),
+        contentDescription = "Top Banner",
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(300.dp)
+            .padding(top = 32.dp)
+    )
+}
+
+
