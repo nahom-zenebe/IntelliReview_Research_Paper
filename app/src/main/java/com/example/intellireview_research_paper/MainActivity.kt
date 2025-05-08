@@ -19,6 +19,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.intellireview_research_paper.ui.components.CreatePostScreen
 import com.example.intellireview_research_paper.ui.navigation.Screen
 import com.example.intellireview_research_paper.ui.screens.HomeScreen
 import com.example.intellireview_research_paper.ui.theme.IntelliReview_Research_PaperTheme
@@ -82,7 +83,7 @@ fun MainScreen() {
                 LoginScreen()
             }
             composable(Screen.Messages.route) {
-                // TODO: Add MessagesScreen()
+                CreatePostScreen()
             }
             composable(Screen.Profile.route) {
                 UserProfileScreen()
