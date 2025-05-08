@@ -94,5 +94,3 @@ fun BottomNavBar(
         }
     }
 }
-
-

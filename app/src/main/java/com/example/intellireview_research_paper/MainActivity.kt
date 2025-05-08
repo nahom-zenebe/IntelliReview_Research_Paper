@@ -34,7 +34,6 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-
 @Composable
 fun MainScreen() {
     val navController = rememberNavController()
@@ -82,10 +81,10 @@ fun MainScreen() {
                 LoginScreen()
             }
             composable(Screen.Messages.route) {
-
+                // TODO: Add MessagesScreen()
             }
             composable(Screen.Profile.route) {
-
+                // TODO: Add ProfileScreen()
             }
         }
     }
