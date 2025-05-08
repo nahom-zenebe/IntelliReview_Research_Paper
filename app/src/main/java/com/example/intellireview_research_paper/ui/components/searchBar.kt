@@ -1,3 +1,5 @@
+// SearchBar.kt
+package com.example.intellireview_research_paper.ui.components
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -26,7 +28,8 @@ fun SearchBar(
         onValueChange = onQueryChanged,
         placeholder = { Text("Search", fontSize = 20.sp) },
         shape = RoundedCornerShape(21.dp),
-        modifier = modifier.fillMaxWidth()
+        modifier = modifier
+            .fillMaxWidth()
             .height(60.dp),
         colors = OutlinedTextFieldDefaults.colors(
             unfocusedContainerColor = Color(0xFFECECFB),
@@ -38,12 +41,10 @@ fun SearchBar(
         singleLine = true,
         trailingIcon = {
             Icon(
-                imageVector = Icons.Outlined.Search, // Search Icon
+                imageVector = Icons.Outlined.Search,
                 contentDescription = "Search Icon",
-                tint = Color.Gray // Change tint color as needed
+                tint = Color.Gray
             )
         }
     )
 }
-
-

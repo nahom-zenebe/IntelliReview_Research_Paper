@@ -20,6 +20,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.intellireview_research_paper.ui.navigation.Screen
+import com.example.intellireview_research_paper.ui.screens.HomeScreen
 import com.example.intellireview_research_paper.ui.theme.IntelliReview_Research_PaperTheme
 
 class MainActivity : ComponentActivity() {
@@ -72,7 +73,7 @@ fun MainScreen() {
             modifier = Modifier.padding(innerPadding)
         ) {
             composable(Screen.Home.route) {
-                UserProfileScreen()
+                HomeScreen()
             }
             composable(Screen.Favourites.route) {
                 WelcomeScreen()
@@ -84,7 +85,7 @@ fun MainScreen() {
                 // TODO: Add MessagesScreen()
             }
             composable(Screen.Profile.route) {
-                // TODO: Add ProfileScreen()
+                UserProfileScreen()
             }
         }
     }
