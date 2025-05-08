@@ -2,6 +2,7 @@ package com.example.intellireview_research_paper
 
 import Bookmark
 import BottomNavBar
+import CreateAccountScreen
 import LoginScreen
 import UserProfileScreen
 import android.os.Bundle
@@ -83,7 +84,7 @@ fun MainScreen() {
                 Bookmark(onMenuClick = {})
             }
             composable(Screen.Grid.route) {
-                LoginScreen()
+                LoginScreen(navController = navController)
             }
             composable(Screen.Messages.route) {
                 // Provide the ViewModel here:
@@ -93,6 +94,11 @@ fun MainScreen() {
             composable(Screen.Profile.route) {
                 UserProfileScreen()
             }
+
+            composable(Screen.CreateAccountScreen.route) {
+                CreateAccountScreen(navController = navController)
+            }
+
         }
     }
 }

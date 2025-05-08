@@ -6,4 +6,5 @@ sealed class Screen(val route: String) {
     object Grid : Screen("grid")
     object Messages : Screen("messages")
     object Profile : Screen("profile")
+    object  CreateAccountScreen:Screen("signup")
 }

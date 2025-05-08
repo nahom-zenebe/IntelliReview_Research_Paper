@@ -1,5 +1,6 @@
 
 
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -14,6 +15,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -24,8 +26,11 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import com.example.intellireview_research_paper.R
-
+import com.example.intellireview_research_paper.ui.navigation.Screen
+import com.example.intellireview_research_paper.ui.viewmodel.UserViewModel
 
 
 @Composable
@@ -43,11 +48,26 @@ fun TopBannerImage() {
 @Composable
 fun LoginScreen(
     onLoginClick: (String, String) -> Unit = { _, _ -> },
-    onNavigateToSignup: () -> Unit = {}
+    navController: NavController,
 ) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
+
+
+    val viewModel: UserViewModel = viewModel()
+    val user = viewModel.user
+    val context = LocalContext.current
+
+    LaunchedEffect(user) {
+        if (user != null) {
+            Toast.makeText(context, "Login successful!", Toast.LENGTH_SHORT).show()
+            navController.navigate(Screen.Home.route) {
+                popUpTo(Screen.Grid.route) { inclusive = true }
+            }
+        }
+    }
+
 
     Column(
         modifier = Modifier
@@ -141,7 +161,13 @@ fun LoginScreen(
             Spacer(modifier = Modifier.height(25.dp))
 
             Button(
-                onClick = { onLoginClick(email, password) },
+                onClick ={
+                    if (email.isNotEmpty() && password.isNotEmpty()) {
+                        viewModel.login(email, password.toIntOrNull() ?: 0)
+                    } else {
+                        Toast.makeText(context, "Please fill all fields", Toast.LENGTH_SHORT).show()
+                    }
+                },
                 modifier = Modifier
                     .fillMaxWidth(0.6f)
                     .padding(vertical = 12.dp),
@@ -180,7 +206,9 @@ fun LoginScreen(
                 fontWeight = FontWeight.Medium,
                 color = Color(0xff36454f),
                 modifier = Modifier
-                    .clickable { onNavigateToSignup() }
+                    .clickable {
+                        navController.navigate(Screen.CreateAccountScreen.route)
+                    }
                     .padding(top = 12.dp)
             )
 
@@ -198,14 +226,14 @@ fun LoginScreenPreview() {
             modifier = Modifier.fillMaxSize(),
             color = MaterialTheme.colorScheme.background
         ) {
-            LoginScreen(
-                onLoginClick = { email, password ->
-                    println("Login clicked with: $email, $password")
-                },
-                onNavigateToSignup = {
-                    println("Navigate to Signup clicked")
-                }
-            )
+//            LoginScreen(
+//                onLoginClick = { email, password ->
+//                    println("Login clicked with: $email, $password")
+//                },
+//                onNavigateToSignup = {
+//                    println("Navigate to Signup clicked")
+//                }
+//            )
         }
     }
 }
