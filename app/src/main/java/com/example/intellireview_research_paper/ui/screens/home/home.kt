@@ -66,10 +66,7 @@ fun HomeScreen() {
                         coroutineScope.launch { drawerState.open() }
                     },
                     inputname = TODO()
-<<<<<<< HEAD
-=======
 
->>>>>>> 0253550a85ebcabd3892c5ab973b5d8a8d32cc81
                 )
             },
             bottomBar = {

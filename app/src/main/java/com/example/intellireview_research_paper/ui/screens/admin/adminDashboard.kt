@@ -5,21 +5,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.example.intellireview_research_paper.ui.components
+
+import com.example.intellireview_research_paper.ui.components.DrawerContent
 import java.nio.file.WatchEvent
 
-@Composable
- fun adminDashboard(
-
- ){
-     Column (
-         modifier = Modifier.fillMaxWidth().padding(16.dp)
-     ){
-         Row (
-             modifier = Modifier.fillMaxWidth()
-         ){
-
-         }
-     }
-
- }
