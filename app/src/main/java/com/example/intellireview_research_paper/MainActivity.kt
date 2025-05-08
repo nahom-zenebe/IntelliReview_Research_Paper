@@ -4,7 +4,6 @@ import Bookmark
 import BottomNavBar
 import LoginScreen
 import UserProfileScreen
-import WelcomeScreen
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent

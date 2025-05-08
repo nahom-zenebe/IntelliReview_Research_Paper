@@ -68,7 +68,8 @@ fun HomeScreen() {
                 HomeTopBar(
                     onMenuClick = {
                         coroutineScope.launch { drawerState.open() }
-                    }
+                    },
+                    inputname = TODO()
                 )
             },
             bottomBar = {
