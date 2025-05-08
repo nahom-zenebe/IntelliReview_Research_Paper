@@ -10,11 +10,11 @@ import java.util.concurrent.TimeUnit
 
 interface PaperApi {
 
-    @GET("/papers")
+    @GET("/getpapers")
     suspend fun getPaper(): Response<List<papermodel>>
 
     @FormUrlEncoded
-    @POST("/papers")
+    @POST("/createpapers")
     suspend fun createPaper(
         @Field("title") title: String,
         @Field("authors") authors: String,
