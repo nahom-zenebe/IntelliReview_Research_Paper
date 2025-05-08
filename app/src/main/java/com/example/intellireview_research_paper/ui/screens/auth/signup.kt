@@ -1,3 +1,4 @@
+import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -25,6 +26,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -32,6 +34,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -40,21 +43,52 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import com.example.intellireview_research_paper.data.mapper.UserRepositoryImpl
 import com.example.intellireview_research_paper.ui.viewmodel.UserViewModel
+
 
 @Composable
 fun CreateAccountScreen(
     onBackClick: () -> Unit = {},
     onLoginClick: () -> Unit = {},
+    navController: NavController
 
 
 ) {
-    var fullName by remember { mutableStateOf("") }
+    var  name by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var role by remember { mutableStateOf("") }
     var country by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
+
+    val viewModel: UserViewModel = viewModel()
+    val user = viewModel.user
+    val context = LocalContext.current
+
+    class UserViewModelFactory(private val userRepository: UserRepositoryImpl) : ViewModelProvider.Factory {
+        override fun <T : ViewModel> create(modelClass: Class<T>): T {
+            if (modelClass.isAssignableFrom(UserViewModel::class.java)) {
+                return UserViewModel(userRepository) as T
+            }
+            throw IllegalArgumentException("Unknown ViewModel class")
+        }
+    }
+
+
+    LaunchedEffect(user) {
+        if (user != null) {
+            Toast.makeText(context, "Signup successful!", Toast.LENGTH_SHORT).show()
+            navController.navigate("home") {
+                popUpTo("signup") { inclusive = true }
+            }
+
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -92,7 +126,7 @@ fun CreateAccountScreen(
         Spacer(modifier = Modifier.height(5.dp))
 
         // Input fields
-        LabeledField("Your full name", fullName, onValueChange = { fullName = it })
+        LabeledField("Your full name", name, onValueChange = { name = it })
         LabeledField("Email", email, onValueChange = { email = it })
         LabeledField(
             label = "Password",

@@ -30,7 +30,6 @@ import com.example.intellireview_research_paper.ui.components.HomeTopBar
 import com.example.intellireview_research_paper.ui.components.ResearchPaperCard
 import com.example.intellireview_research_paper.ui.components.SearchBar
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.launch
 
 @Composable
 fun HomeScreen() {
@@ -52,16 +51,13 @@ fun HomeScreen() {
         drawerContent = {
             DrawerContent(
                 onItemSelected = { label ->
-                    // Handle drawer item clicks here (e.g., navigate to screens)
-                    println("Selected item: $label")
+                    // Handle drawer item clicks here
                 },
                 onLogout = {
-                    // Handle logout logic here
-                    println("Logout clicked")
+                    // Handle logout here
                 }
             )
         }
-
     ) {
         Scaffold(
             topBar = {
@@ -70,10 +66,14 @@ fun HomeScreen() {
                         coroutineScope.launch { drawerState.open() }
                     },
                     inputname = TODO()
+<<<<<<< HEAD
+=======
+
+>>>>>>> 0253550a85ebcabd3892c5ab973b5d8a8d32cc81
                 )
             },
             bottomBar = {
-                // TODO: add BottomNavBar here
+                /* no-op; bottom nav is in MainActivity */
             }
         ) { innerPadding ->
             Column(

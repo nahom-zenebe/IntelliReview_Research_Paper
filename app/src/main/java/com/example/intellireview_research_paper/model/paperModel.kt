@@ -1,6 +1,6 @@
 package com.example.intellireview_research_paper.model
 
-data class papermodel (
+data class paperModel (
     val paperId:String?=null,
     val title:String?=null,
     val authors:String?=null,

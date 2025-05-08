@@ -5,11 +5,14 @@ const uploadPaper = async (req, res) => {
   try {
     const { title, authors, year, uploadedBy, catagory } = req.body;
 
+    // Safely handle pdfUrl in case no file was uploaded
+    const pdfUrl = req.file ? req.file.path : "";
+
     const newPaper = new Paper({
       title,
       authors: Array.isArray(authors) ? authors : [authors],
       year,
-      pdfUrl: req.file.path,
+      pdfUrl,
       uploadedBy,
       catagory,
     });
@@ -21,7 +24,7 @@ const uploadPaper = async (req, res) => {
       paper: savedPaper,
     });
   } catch (error) {
-    console.error("Error uploading paper:", error.message);
+    console.error("Error uploading paper:", error);
     res.status(500).json({ error: "Failed to upload paper: " + error.message });
   }
 };
