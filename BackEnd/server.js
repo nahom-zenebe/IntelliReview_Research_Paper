@@ -3,7 +3,7 @@ require("dotenv").config();
 const express = require("express");
 const authrouter = require("./router/authRouther");
 const paperRouter = require("./router/paperRouter");
-const ReviewRouter = require("./router/Reviewmodel");
+const ReviewRouter = require("./router/ReviewRouter");
 const CategoryRouter = require("./router/CategoryRouter");
 const NotificationRouter = require("./router/NotificationRouter");
 const app = express();
