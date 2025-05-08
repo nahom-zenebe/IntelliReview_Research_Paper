@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.ui.res.painterResource
 import com.example.intellireview_research_paper.MainScreen
 import com.example.intellireview_research_paper.R
+import com.example.intellireview_research_paper.ui.components.BookmarkCard
 import com.example.intellireview_research_paper.ui.components.HomeTopBar
 import com.example.intellireview_research_paper.ui.components.SearchBar
 import com.example.intellireview_research_paper.ui.theme.IntelliReview_Research_PaperTheme
