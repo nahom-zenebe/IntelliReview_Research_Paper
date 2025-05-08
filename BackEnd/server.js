@@ -6,6 +6,7 @@ const paperRouter = require("./router/paperRouter");
 const ReviewRouter = require("./router/ReviewRouter");
 const CategoryRouter = require("./router/CategoryRouter");
 const NotificationRouter = require("./router/NotificationRouter");
+const cors = require("cors");
 const app = express();
 
 app.use(express.json());
