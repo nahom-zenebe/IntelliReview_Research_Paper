@@ -1,3 +1,5 @@
+const mongoose = require("mongoose");
+
 const reviewSchema = new mongoose.NumberSchema({
   paperId: {
     type: mongoose.Schema.Types.ObjectId,
