@@ -4,7 +4,6 @@ import Bookmark
 import BottomNavBar
 import LoginScreen
 import UserProfileScreen
-import WelcomeScreen
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -16,14 +15,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.example.intellireview_research_paper.ui.components.CreatePostScreen
+import com.example.intellireview_research_paper.ui.components.PostingScreen
 import com.example.intellireview_research_paper.ui.navigation.Screen
 import com.example.intellireview_research_paper.ui.screens.HomeScreen
 import com.example.intellireview_research_paper.ui.theme.IntelliReview_Research_PaperTheme
+import com.example.intellireview_research_paper.viewmodel.CreatePostViewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -51,7 +52,8 @@ fun MainScreen() {
         Screen.Profile
     )
 
-    val selectedIndex = screens.indexOfFirst { it.route == currentRoute }.takeIf { it != -1 } ?: 0
+    val selectedIndex = screens.indexOfFirst { it.route == currentRoute }
+        .takeIf { it != -1 } ?: 0
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -84,12 +86,13 @@ fun MainScreen() {
                 LoginScreen()
             }
             composable(Screen.Messages.route) {
-                CreatePostScreen()
+                // Provide the ViewModel here:
+                val createPostViewModel: CreatePostViewModel = viewModel()
+                PostingScreen(viewModel = createPostViewModel)
             }
             composable(Screen.Profile.route) {
                 UserProfileScreen()
             }
-
         }
     }
 }

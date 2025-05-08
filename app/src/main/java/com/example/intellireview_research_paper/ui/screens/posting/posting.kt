@@ -1,6 +1,10 @@
+
 package com.example.intellireview_research_paper.ui.components
 
+import android.content.Context
 import android.net.Uri
+import android.provider.MediaStore
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
@@ -8,12 +12,10 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
@@ -24,7 +26,6 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
@@ -38,27 +39,32 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.intellireview_research_paper.R
-
+import com.example.intellireview_research_paper.viewmodel.CreatePostViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CreatePostScreen() {
+fun PostingScreen(viewModel: CreatePostViewModel) {
+    val context = LocalContext.current
     var researchTitle by remember { mutableStateOf(TextFieldValue()) }
-    var description by remember { mutableStateOf(TextFieldValue()) }
+    var authors by remember { mutableStateOf(TextFieldValue()) }
     var selectedCategory by remember { mutableStateOf("") }
     var categoryExpanded by remember { mutableStateOf(false) }
+    var filePath by remember { mutableStateOf<String?>(null) }
     val categories = listOf("AI", "Maths", "Programming")
 
     val fileLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
         uri?.let {
-            // TODO: process file URI
+            val path = getRealPathFromURI(context, it)
+            filePath = path
+            viewModel.pdfUrl.value = path
         }
     }
 
@@ -94,9 +100,11 @@ fun CreatePostScreen() {
             Column(modifier = Modifier.padding(16.dp)) {
                 OutlinedTextField(
                     value = researchTitle,
-                    onValueChange = { researchTitle = it },
-                    label = { Text("Research Title", fontSize = 18.sp) },
-                    textStyle = LocalTextStyle.current.copy(fontSize = 16.sp),
+                    onValueChange = {
+                        researchTitle = it
+                        viewModel.title.value = it.text
+                    },
+                    label = { Text("Research Title") },
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(bottom = 16.dp),
@@ -104,13 +112,14 @@ fun CreatePostScreen() {
                 )
 
                 OutlinedTextField(
-                    value = description,
-                    onValueChange = { description = it },
-                    label = { Text("Description", fontSize = 18.sp) },
-                    textStyle = LocalTextStyle.current.copy(fontSize = 16.sp),
+                    value = authors,
+                    onValueChange = {
+                        authors = it
+                        viewModel.authors.value = it.text
+                    },
+                    label = { Text("Authors") },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(120.dp)
                         .padding(bottom = 16.dp),
                     shape = RoundedCornerShape(8.dp)
                 )
@@ -122,7 +131,6 @@ fun CreatePostScreen() {
                         value = if (selectedCategory.isEmpty()) "Choose category" else selectedCategory,
                         onValueChange = {},
                         readOnly = true,
-                        placeholder = { Text("Choose category") },
                         trailingIcon = {
                             Icon(
                                 Icons.Default.ArrowDropDown,
@@ -130,10 +138,7 @@ fun CreatePostScreen() {
                                 modifier = Modifier.clickable { categoryExpanded = true }
                             )
                         },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(52.dp),
-                        shape = RoundedCornerShape(24.dp),
+                        modifier = Modifier.fillMaxWidth(),
                         colors = OutlinedTextFieldDefaults.colors(
                             unfocusedContainerColor = Color(0xFFECECFB),
                             focusedContainerColor = Color(0xFFECFBFF),
@@ -149,9 +154,10 @@ fun CreatePostScreen() {
                     ) {
                         categories.forEach { category ->
                             DropdownMenuItem(
-                                text = { Text(category, fontSize = 16.sp) },
+                                text = { Text(category) },
                                 onClick = {
                                     selectedCategory = category
+                                    viewModel.category.value = category
                                     categoryExpanded = false
                                 }
                             )
@@ -160,35 +166,55 @@ fun CreatePostScreen() {
                 }
 
                 Button(
-                    onClick = { fileLauncher.launch("*/*") },
+                    onClick = { fileLauncher.launch("application/pdf") },
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(bottom = 16.dp),
-                    shape = RoundedCornerShape(8.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = Color.White),
                     border = BorderStroke(1.dp, Color.Black)
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text("Upload File", fontSize = 30.sp, color = Color.Black)
-                        Spacer(modifier = Modifier.height(4.dp))
+                        Text("Upload PDF", color = Color.Black)
                         Icon(
                             imageVector = Icons.Filled.Image,
                             contentDescription = "Upload",
-                            modifier = Modifier.size(40.dp),
                             tint = Color.Black
                         )
                     }
                 }
 
                 Button(
-                    onClick = { /* TODO */ },
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(8.dp)
+                    onClick = {
+                        if (researchTitle.text.isNotEmpty() &&
+                            authors.text.isNotEmpty() &&
+                            selectedCategory.isNotEmpty() &&
+                            filePath != null) {
+                            viewModel.createPaper()
+                        } else {
+                            Toast.makeText(
+                                context,
+                                "Please fill all fields and select a PDF file",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text("POST", fontSize = 18.sp)
+                    Text("POST")
                 }
             }
         }
     }
 }
 
+private fun getRealPathFromURI(context: Context, uri: Uri): String? {
+    val cursor = context.contentResolver.query(uri, null, null, null, null)
+    return cursor?.use {
+        if (it.moveToFirst()) {
+            val idx = it.getColumnIndex(MediaStore.Files.FileColumns.DATA)
+            if (idx >= 0) it.getString(idx) else uri.path
+        } else {
+            uri.path
+        }
+    }
+}
