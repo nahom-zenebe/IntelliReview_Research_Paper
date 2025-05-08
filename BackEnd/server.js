@@ -6,6 +6,7 @@ const paperRouter = require("./router/paperRouter");
 const ReviewRouter = require("./router/ReviewRouter");
 const CategoryRouter = require("./router/CategoryRouter");
 const NotificationRouter = require("./router/NotificationRouter");
+const { MongoDBconfig } = require("./utils/mongoconfig");
 const cors = require("cors");
 const app = express();
 
@@ -30,5 +31,6 @@ app.listen(PORT, (err) => {
   if (err) {
     console.log(`error while listening on PORT ${process.env.PORT}`, err);
   }
+  MongoDBconfig();
   console.log(`Listening on port ${process.env.PORT}...`);
 });
