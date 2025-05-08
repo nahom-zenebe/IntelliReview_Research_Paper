@@ -5,7 +5,6 @@ const User = require("../model/Usermodel");
 const notifyNewPaper = async (req, res) => {
   try {
     const users = await User.find();
-
     const notifications = users.map((user) => ({
       userId: user._id,
       title: "New Paper Added",

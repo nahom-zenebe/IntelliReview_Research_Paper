@@ -1,0 +1,14 @@
+### Upload a Paper (POST)
+POST http://localhost:3500/api/paper/upload
+Content-Type: application/json
+
+{
+  "title": "Efficient Algorithms in Graph Theory",
+  "authors": ["Alice Smith", "Bob Johnson"],
+  "year": 2024,
+  "uploadedBy": "abel@intellireview.com",
+  "catagory": "Computer Science"
+}
+
+###
+GET http://localhost:3500/api/paper/viewPapers
