@@ -65,7 +65,8 @@ fun HomeScreen() {
                     onMenuClick = {
                         coroutineScope.launch { drawerState.open() }
                     },
-                    inputname = "IntelliReview"  // was TODO(), now a safe default
+                    inputname = TODO()
+
                 )
             },
             bottomBar = {
