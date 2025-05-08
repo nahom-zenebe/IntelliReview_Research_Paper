@@ -1,3 +1,4 @@
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -15,42 +16,54 @@ import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Send
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import com.example.intellireview_research_paper.ui.navigation.Screen
+
 
 @Composable
 fun BottomNavBar(
-    selectedItem: Int = 0,
-    onItemSelected: (Int) -> Unit = {},
-    modifier: Modifier
+    selectedItem: Int,
+    onItemSelected: (Int) -> Unit,
+    navController: NavController,
+    modifier: Modifier = Modifier
 ) {
     val items = listOf(
-        Icons.Outlined.Home to "Home",
-        Icons.Outlined.FavoriteBorder to "Favourites",
-        Icons.Outlined.GridView to "Grid",
-        Icons.Outlined.Send to "Messages",
-        Icons.Outlined.Person to "Profile"
+        Screen.Home,
+        Screen.Favourites,
+        Screen.Grid,
+        Screen.Messages,
+        Screen.Profile
+    )
+
+    val icons = listOf(
+        Icons.Outlined.Home,
+        Icons.Outlined.FavoriteBorder,
+        Icons.Outlined.GridView,
+        Icons.Outlined.Send,
+        Icons.Outlined.Person
     )
 
     NavigationBar(
         containerColor = Color(0xFFECECFB),
         tonalElevation = 4.dp,
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .height(90.dp)
     ) {
-        items.forEachIndexed { index, (icon, label) ->
+        items.forEachIndexed { index, screen ->
             val isSelected = selectedItem == index
             NavigationBarItem(
                 selected = isSelected,
-                onClick = { onItemSelected(index) },
+                onClick = {
+                    onItemSelected(index)
+                },
                 icon = {
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
@@ -58,13 +71,11 @@ fun BottomNavBar(
                         modifier = Modifier.padding(top = 6.dp)
                     ) {
                         Icon(
-                            imageVector = icon,
-                            contentDescription = label,
-                            modifier = Modifier.size(26.dp), // reduced from 30.dp
+                            imageVector = icons[index],
+                            contentDescription = screen.route,
+                            modifier = Modifier.size(26.dp),
                             tint = Color(0xFF444444)
-
                         )
-
                         Spacer(modifier = Modifier.height(4.dp))
                         if (isSelected) {
                             Box(
@@ -81,19 +92,5 @@ fun BottomNavBar(
                 alwaysShowLabel = false
             )
         }
-    }
-}
-@Preview(showBackground = true, device = "spec:width=360dp,height=90dp")
-@Composable
-fun BottomNavBarPreview() {
-    // Provide a default modifier
-    MaterialTheme {
-
-
-        BottomNavBar(
-            selectedItem = 1,
-            onItemSelected = {},
-            modifier = Modifier
-        )
     }
 }

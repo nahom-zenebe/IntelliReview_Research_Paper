@@ -1,10 +1,10 @@
 const jwt = require("jsonwebtoken");
-const User = require("../models/Usermodel");
+const User = require("../model/Usermodel");
 require("dotenv").config();
 
 module.exports.authmiddleware = async (req, res, next) => {
   try {
-    const token = req.cookies.Intelireview-app;
+    const token = req.cookies.Intelireview - app;
 
     if (!token) {
       return res
@@ -34,41 +34,42 @@ module.exports.authmiddleware = async (req, res, next) => {
   }
 };
 
-
-
-module.exports.adminmiddleware=async(req,res,next)=>{
-  const user=req.user
+module.exports.adminmiddleware = async (req, res, next) => {
+  const user = req.user;
   try {
-      if(!user){
-          return res.status(403).json({ message: "Access denied." });
-      }
+    if (!user) {
+      return res.status(403).json({ message: "Access denied." });
+    }
 
-      if(user.role!=="admin"){
-          return res.status(403).json({ message: "Access denied. admin role required." });
-      }
-      next()
+    if (user.role !== "admin") {
+      return res
+        .status(403)
+        .json({ message: "Access denied. admin role required." });
+    }
+    next();
   } catch (error) {
-      return res.status(401).json({ message: "Unauthorized: Invalid or expired token." });
+    return res
+      .status(401)
+      .json({ message: "Unauthorized: Invalid or expired token." });
   }
-  
-}
+};
 
-
-
-
-module.exports.Guestmiddleware=async(req,res,next)=>{
-  const user=req.user
+module.exports.Guestmiddleware = async (req, res, next) => {
+  const user = req.user;
   try {
-      if(!user){
-          return res.status(403).json({ message: "Access denied." });
-      }
+    if (!user) {
+      return res.status(403).json({ message: "Access denied." });
+    }
 
-      if(user.role!=="guest"){
-          return res.status(403).json({ message: "Access denied. admin role required." });
-      }
-      next()
+    if (user.role !== "guest") {
+      return res
+        .status(403)
+        .json({ message: "Access denied. admin role required." });
+    }
+    next();
   } catch (error) {
-      return res.status(401).json({ message: "Unauthorized: Invalid or expired token." });
+    return res
+      .status(401)
+      .json({ message: "Unauthorized: Invalid or expired token." });
   }
-  
-}
+};

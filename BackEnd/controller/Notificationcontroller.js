@@ -1,5 +1,5 @@
 const Notification = require("../model/Notificationmodel");
-const User = require("../model/UserModel");
+const User = require("../model/Usermodel");
 
 // Send notification when a new paper is added
 const notifyNewPaper = async (req, res) => {

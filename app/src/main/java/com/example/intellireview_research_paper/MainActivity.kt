@@ -1,23 +1,25 @@
 package com.example.intellireview_research_paper
 
 import BottomNavBar
+import LoginScreen
 import UserProfileScreen
+import WelcomeScreen
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
+import com.example.intellireview_research_paper.ui.navigation.Screen
 import com.example.intellireview_research_paper.ui.theme.IntelliReview_Research_PaperTheme
 
 class MainActivity : ComponentActivity() {
@@ -32,51 +34,58 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-
 @Composable
 fun MainScreen() {
-    var selectedIndex by remember { mutableStateOf(0) }
-    var searchQuery by remember { mutableStateOf("") }
-    var selectedFilter by remember { mutableStateOf<String?>(null) }
-    var selectedSort by remember { mutableStateOf<String?>(null) }
+    val navController = rememberNavController()
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = navBackStackEntry?.destination?.route
+
+    val screens = listOf(
+        Screen.Home,
+        Screen.Favourites,
+        Screen.Grid,
+        Screen.Messages,
+        Screen.Profile
+    )
+
+    val selectedIndex = screens.indexOfFirst { it.route == currentRoute }.takeIf { it != -1 } ?: 0
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         bottomBar = {
             BottomNavBar(
                 selectedItem = selectedIndex,
-                onItemSelected = { selectedIndex = it },
-                modifier = Modifier
+                onItemSelected = { index ->
+                    navController.navigate(screens[index].route) {
+                        popUpTo(navController.graph.startDestinationId) { saveState = true }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                },
+                navController = navController
             )
         }
     ) { innerPadding ->
-        Column(
-            modifier = Modifier
-                .padding(innerPadding)
-                .padding(16.dp)
-                .fillMaxSize()
+        NavHost(
+            navController = navController,
+            startDestination = Screen.Home.route,
+            modifier = Modifier.padding(innerPadding)
         ) {
-            // 🔍 Search bar at the top
-//            SearchBar(
-//                query = searchQuery,
-//                onQueryChanged = { searchQuery = it }
-//            )
-//
-//            Spacer(modifier = Modifier.height(8.dp))
-//
-//            // ➡️ Filter & Sort row below search
-//            FilterSortRow(
-//                selectedFilter = selectedFilter,
-//                onFilterSelected = { selectedFilter = it },
-//                selectedSort = selectedSort,
-//                onSortSelected = { selectedSort = it }
-//            )
-//
-//            Spacer(modifier = Modifier.height(16.dp))
-
-            UserProfileScreen()
-
-            // ... your screen content goes here ...
+            composable(Screen.Home.route) {
+                UserProfileScreen()
+            }
+            composable(Screen.Favourites.route) {
+                WelcomeScreen()
+            }
+            composable(Screen.Grid.route) {
+                LoginScreen()
+            }
+            composable(Screen.Messages.route) {
+                // TODO: Add MessagesScreen()
+            }
+            composable(Screen.Profile.route) {
+                // TODO: Add ProfileScreen()
+            }
         }
     }
 }

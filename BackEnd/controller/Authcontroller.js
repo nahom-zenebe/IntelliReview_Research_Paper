@@ -1,11 +1,11 @@
-const User = require("../models/Usermodel");
+const User = require("../model/Usermodel");
 const bcrypt = require("bcryptjs");
-const generateToken = require("../libs/Tokengenerator");
-const Cloundinary = require("../libs/Cloundinary");
+const generateToken = require("../utils/Tokengenerator");
+const Cloundinary = require("../utils/Cloudinary");
 
 module.exports.signup = async (req, res) => {
   try {
-    const { name, email, password,country, ProfilePic, role } = req.body;
+    const { name, email, password, country, ProfilePic, role } = req.body;
 
     const duplicatedUser = await User.findOne({ email });
     if (duplicatedUser) {
@@ -96,8 +96,7 @@ module.exports.logout = async (req, res) => {
 
 module.exports.updateProfile = async (req, res) => {
   try {
-    const { ProfilePic,userId } = req.body;
-
+    const { ProfilePic, userId } = req.body;
 
     if (!userId) {
       return res.status(400).json({ message: "User not authenticated" });
@@ -126,12 +125,10 @@ module.exports.updateProfile = async (req, res) => {
         });
       } catch (cloudinaryError) {
         console.error("Cloudinary upload failed:", cloudinaryError);
-        return res
-          .status(500)
-          .json({
-            message: "Image upload failed",
-            error: cloudinaryError.message,
-          });
+        return res.status(500).json({
+          message: "Image upload failed",
+          error: cloudinaryError.message,
+        });
       }
     } else {
       return res.status(400).json({ message: "No profile picture provided" });
@@ -142,19 +139,15 @@ module.exports.updateProfile = async (req, res) => {
   }
 };
 
+module.exports.deleteAccount = async (req, res) => {
+  try {
+    const { UserId } = req.params;
 
-module.exports.deleteAccount=async(req,res)=>{
-    try {
-        const {UserId}=req.params
+    const deleteAccount = await User.findByIdAndDelete(UserId);
 
-        const deleteAccount= await User.findByIdAndDelete(UserId)
-
-        res.json({ message: 'Account deleted successfully ' });
-
-        
-    } catch (error) {
-        console.error("Error in delete Controller", error.message);
+    res.json({ message: "Account deleted successfully " });
+  } catch (error) {
+    console.error("Error in delete Controller", error.message);
     res.status(500).json({ message: "Internal Server Error", error });
-    }
-
-}
+  }
+};

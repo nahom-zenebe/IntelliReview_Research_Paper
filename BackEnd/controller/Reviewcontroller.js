@@ -1,5 +1,4 @@
-const Review = require('../models/Review');
-
+const Review = require("../model/Reviewmodel");
 
 module.exports.createReview = async (req, res) => {
   try {
@@ -12,62 +11,54 @@ module.exports.createReview = async (req, res) => {
   }
 };
 
-
 module.exports.getAllReviews = async (req, res) => {
   try {
-    const reviews = await Review.find()
-      .populate('paperId')
-      .populate('userId');
+    const reviews = await Review.find().populate("paperId").populate("userId");
     res.json(reviews);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 };
 
-
 module.exports.getReviewById = async (req, res) => {
   try {
-    const {ReviewId}=req.params
+    const { ReviewId } = req.params;
     const review = await Review.findById(ReviewId)
-      .populate('paperId')
-      .populate('userId');
-    if (!review) return res.status(404).json({ error: 'Review not found' });
+      .populate("paperId")
+      .populate("userId");
+    if (!review) return res.status(404).json({ error: "Review not found" });
     res.json(review);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 };
 
-
 module.exports.updateReview = async (req, res) => {
   try {
     const { rating, comment } = req.body;
-    const {ReviewId}=req.params
+    const { ReviewId } = req.params;
     const review = await Review.findByIdAndUpdate(
-        ReviewId,
+      ReviewId,
       { rating, comment, updatedAt: Date.now() },
       { new: true, runValidators: true }
     );
-    if (!review) return res.status(404).json({ error: 'Review not found' });
+    if (!review) return res.status(404).json({ error: "Review not found" });
     res.json(review);
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
 };
 
-
 module.exports.deleteReview = async (req, res) => {
   try {
-    const {ReviewId}=req.params
+    const { ReviewId } = req.params;
     const review = await Review.findByIdAndDelete(ReviewId);
-    if (!review) return res.status(404).json({ error: 'Review not found' });
-    res.json({ message: 'Review deleted' });
+    if (!review) return res.status(404).json({ error: "Review not found" });
+    res.json({ message: "Review deleted" });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 };
-
-
 
 module.exports.calculatereview = async (req, res) => {
   try {
@@ -77,26 +68,25 @@ module.exports.calculatereview = async (req, res) => {
       { $match: { paperId: mongoose.Types.ObjectId(paperId) } },
       {
         $group: {
-          _id: '$paperId',
-          averageRating: { $avg: '$rating' },
-          reviewCount: { $sum: 1 }
-        }
-      }
+          _id: "$paperId",
+          averageRating: { $avg: "$rating" },
+          reviewCount: { $sum: 1 },
+        },
+      },
     ]);
 
     if (result.length === 0) {
-      return res.status(404).json({ message: 'No reviews found for this paper' });
+      return res
+        .status(404)
+        .json({ message: "No reviews found for this paper" });
     }
 
     res.json({
       paperId,
       averageRating: result[0].averageRating.toFixed(2),
-      reviewCount: result[0].reviewCount
+      reviewCount: result[0].reviewCount,
     });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 };
-
-
-
