@@ -1,5 +1,6 @@
 package com.example.intellireview_research_paper
 
+import Bookmark
 import BottomNavBar
 import LoginScreen
 import UserProfileScreen
@@ -77,7 +78,7 @@ fun MainScreen() {
                 HomeScreen()
             }
             composable(Screen.Favourites.route) {
-                WelcomeScreen()
+                Bookmark(onMenuClick = {})
             }
             composable(Screen.Grid.route) {
                 LoginScreen()
@@ -88,6 +89,7 @@ fun MainScreen() {
             composable(Screen.Profile.route) {
                 UserProfileScreen()
             }
+
         }
     }
 }

@@ -30,6 +30,7 @@ import com.example.intellireview_research_paper.ui.components.HomeTopBar
 import com.example.intellireview_research_paper.ui.components.ResearchPaperCard
 import com.example.intellireview_research_paper.ui.components.SearchBar
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.launch
 
 @Composable
 fun HomeScreen() {

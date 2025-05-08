@@ -41,7 +41,8 @@ import androidx.compose.ui.unit.sp
 
 @Composable
 fun HomeTopBar(
-    onMenuClick: () -> Unit
+    onMenuClick: () -> Unit,
+    inputname:String
 ) {
     Row(
         modifier = Modifier
@@ -61,7 +62,7 @@ fun HomeTopBar(
             }
             Spacer(modifier = Modifier.width(4.dp))
             Text(
-                text = "IntelliReview",
+                text = "$inputname",
                 fontSize = 22.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color(0xFF36454F)
@@ -73,6 +74,8 @@ fun HomeTopBar(
             contentDescription = "Notifications",
             tint = Color(0xFF36454F),
             modifier = Modifier.size(28.dp)
+
+
         )
     }
 }
