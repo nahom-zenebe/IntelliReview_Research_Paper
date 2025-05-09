@@ -1,7 +1,7 @@
 package com.example.intellireview_research_paper.ui.screens
 
 //import com.example.Intellireview.HomeTopBar
-import ResearchPaperCardNorating
+import com.example.intellireview_research_paper.ui.components.ResearchPaperCardNorating
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -48,6 +48,7 @@ import androidx.compose.ui.unit.sp
 import com.example.intellireview_research_paper.R
 import com.example.intellireview_research_paper.ui.components.DrawerContent
 import com.example.intellireview_research_paper.ui.components.HomeTopBar
+import com.example.intellireview_research_paper.ui.components.ResearchPaperCardNorating
 import kotlinx.coroutines.launch
 
 
