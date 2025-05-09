@@ -19,6 +19,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 import androidx.compose.runtime.*
 import androidx.compose.material3.TextField
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.modifier.modifierLocalConsumer
 import com.example.intellireview_research_paper.ui.theme.White
 
@@ -48,7 +49,8 @@ fun NotificationScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             Column(modifier=Modifier.fillMaxWidth()
-                .background(deepBlue)
+                .background(
+                    color=deepBlue,shape = RoundedCornerShape(16.dp))
                 .padding(12.dp)
                 ,
 
@@ -61,13 +63,13 @@ fun NotificationScreen(
                 Text(
                     modifier = Modifier.fillMaxWidth().offset(x = 12.dp),
                     text = "Type",
-                    fontWeight = FontWeight.Normal,
+                    fontWeight = FontWeight.Light,
                     fontSize = 23.sp,
                     color = White
 
 
                 )
-                Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(8.dp))
                 TextField(
                     value = type,
                     onValueChange = { type = it },
@@ -82,18 +84,18 @@ fun NotificationScreen(
                     modifier = Modifier.fillMaxWidth(),
 
                     )
-                Spacer(modifier = Modifier.height(32.dp))
+                Spacer(modifier = Modifier.height(24.dp))
                 // Description TextField (larger)
                 Text(
                     modifier = Modifier.fillMaxWidth().offset(x = 12.dp),
                     text = "Description",
                     fontSize = 23.sp,
-                    fontWeight = FontWeight.Normal,
+                    fontWeight = FontWeight.Light,
                     color = White
 
 
                 )
-                Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(8.dp))
                 TextField(
                     value = description,
                     onValueChange = { description = it },
@@ -117,7 +119,8 @@ fun NotificationScreen(
                     onClick = { TODO()},
                     modifier = Modifier
                         .width(190.dp)
-                        .height(35.dp),
+                        .height(35.dp)
+                        .align(Alignment.CenterHorizontally),
                     shape = RoundedCornerShape(12.dp),
 
                     colors = ButtonDefaults.buttonColors(

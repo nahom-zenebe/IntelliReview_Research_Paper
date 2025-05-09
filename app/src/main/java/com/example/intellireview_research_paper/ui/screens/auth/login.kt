@@ -163,7 +163,7 @@ fun LoginScreen(
             Button(
                 onClick ={
                     if (email.isNotEmpty() && password.isNotEmpty()) {
-                        viewModel.login(email, password.toIntOrNull() ?: 0)
+                        viewModel.login(email, (password.toIntOrNull() ?: 0).toString())
                     } else {
                         Toast.makeText(context, "Please fill all fields", Toast.LENGTH_SHORT).show()
                     }

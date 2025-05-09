@@ -5,10 +5,10 @@ import com.example.intellireview_research_paper.model.usermodel
 
 class UserRepositoryImpl(private val api: UserApi) : UserRepository {
 
-    override suspend fun Signup(
+    suspend fun Signup(
         name: String,
         email: String,
-        password: Number,
+        password: String,
         country: String,
         role: String
     ): usermodel {
@@ -22,9 +22,26 @@ class UserRepositoryImpl(private val api: UserApi) : UserRepository {
         return response.body() ?: throw Exception("Signup failed: ${response.errorBody()?.string()}")
     }
 
-    override suspend fun Login(email: String, password: Number): usermodel {
+    suspend fun Login(email: String, password: String): usermodel {
         val response = api.login(email, password.toString())
         return response.body() ?: throw Exception("Login failed: ${response.errorBody()?.string()}")
+    }
+
+    override suspend fun Signup(
+        name: String,
+        email: String,
+        password: Number,
+        country: String,
+        role: String
+    ): usermodel {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun Login(
+        email: String,
+        password: Number
+    ): usermodel {
+        TODO("Not yet implemented")
     }
 
     override suspend fun Logout() {
