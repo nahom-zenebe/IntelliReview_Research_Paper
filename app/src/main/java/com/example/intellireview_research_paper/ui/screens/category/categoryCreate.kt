@@ -46,9 +46,13 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.intellireview_research_paper.R
 import com.example.intellireview_research_paper.ui.theme.White
+import com.example.intellireview_research_paper.viewmodel.CategoryViewModel
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Composable
-fun TopCreateCatagoryImage() {
+fun TopCreateCategoryImage() {
     Box(modifier = Modifier.fillMaxWidth()) {
         Image(
             painter = painterResource(id = R.drawable.welcome_page_cropedbg),
@@ -72,7 +76,8 @@ fun TopCreateCatagoryImage() {
 
 @Composable
 fun CreateCategoryScreen(
-    onCreateCategory: (String, String) -> Unit = { _, _ -> }
+    onCreateCategory: (String, String) -> Unit = { _, _ -> },
+    viewModel: CategoryViewModel = viewModel()
 ) {
     var categoryName by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
@@ -86,7 +91,7 @@ fun CreateCategoryScreen(
                 .padding(24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            TopCreateCatagoryImage()
+            TopCreateCategoryImage()
             Spacer(modifier = Modifier.height(24.dp))
             Spacer(modifier = Modifier.height(24.dp))
             // Header
@@ -145,9 +150,11 @@ fun CreateCategoryScreen(
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            // Create Button
+
             Button(
-                onClick = { onCreateCategory(categoryName, description) },
+                onClick = {
+                    viewModel.createCategory(categoryName, description)
+                },
                 modifier = Modifier
                     .width(150.dp)
                     .height(50.dp),

@@ -21,12 +21,16 @@ import androidx.compose.runtime.*
 import androidx.compose.material3.TextField
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.modifier.modifierLocalConsumer
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.intellireview_research_paper.ui.theme.White
 
 import com.example.intellireview_research_paper.ui.theme.deepBlue
+import com.example.intellireview_research_paper.viewmodel.CategoryViewModel
+import com.example.intellireview_research_paper.viewmodel.NotificationViewModel
 
 @Composable
 fun NotificationScreen(
+    viewModel: NotificationViewModel = viewModel()
 
 ) {
     var type by remember { mutableStateOf("") }
@@ -116,7 +120,9 @@ fun NotificationScreen(
                 Spacer(modifier = Modifier.height(32.dp))
                 // Create Button (Purple-Grey)
                 Button(
-                    onClick = { TODO()},
+                    onClick = {
+                        viewModel.createNotification(type, description)
+                    },
                     modifier = Modifier
                         .width(190.dp)
                         .height(35.dp)
