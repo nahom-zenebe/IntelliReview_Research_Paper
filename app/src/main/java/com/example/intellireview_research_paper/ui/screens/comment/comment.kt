@@ -45,6 +45,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 import com.example.intellireview_research_paper.R
 import com.example.intellireview_research_paper.ui.components.DrawerContent
 import com.example.intellireview_research_paper.ui.components.HomeTopBar
@@ -54,7 +55,11 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CommentingPage() {
+fun CommentingPage(
+    navController: NavHostController,
+    selectedBottomNavItem: Int = 0,
+    onBottomNavItemSelected: (Int) -> Unit = {}
+) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
 
@@ -121,6 +126,16 @@ fun CommentingPage() {
                             unfocusedTrailingIconColor = Color(0xFF5D5CBB)
                         )
                     )
+
+
+                    BottomNavBar(
+                        selectedItem = selectedBottomNavItem,
+                        onItemSelected = onBottomNavItemSelected,
+                        navController = navController,
+                        modifier = Modifier.background(Color(0xFFECECFB))
+                    )
+
+
                 }
             },
             containerColor = Color.White
