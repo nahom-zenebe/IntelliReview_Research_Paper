@@ -148,7 +148,7 @@ fun CreateAccountScreen(
         Spacer(modifier = Modifier.height(7.dp))
 
         var expanded by remember { mutableStateOf(false) }
-        val roleOptions = listOf("User", "Admin", "Guest")
+        val roleOptions = listOf("user", "admin", "guest")
 
         Box(modifier = Modifier
             .fillMaxWidth()
@@ -177,7 +177,7 @@ fun CreateAccountScreen(
             DropdownMenu(
                 expanded = expanded,
                 onDismissRequest = { expanded = false },
-                modifier = Modifier.fillMaxWidth()
+
             ) {
                 roleOptions.forEach { option ->
                     DropdownMenuItem(

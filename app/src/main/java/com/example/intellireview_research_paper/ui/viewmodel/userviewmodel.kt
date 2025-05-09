@@ -23,7 +23,7 @@ class UserViewModel(private val userRepository: UserRepositoryImpl) : ViewModel(
         private set
 
 
-    fun signup(name: String, email: String, password: Number, country: String, role: String) {
+    fun signup(name: String, email: String, password: String, country: String, role: String) {
         isLoading = true
         errorMessage = null
 
@@ -39,7 +39,7 @@ class UserViewModel(private val userRepository: UserRepositoryImpl) : ViewModel(
     }
 
 
-    fun login(email: String, password: Number) {
+    fun login(email: String, password: String) {
         isLoading = true
         errorMessage = null
 
