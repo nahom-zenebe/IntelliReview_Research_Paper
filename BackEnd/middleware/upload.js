@@ -3,29 +3,21 @@ const { CloudinaryStorage } = require("multer-storage-cloudinary");
 const cloudinary = require("../utils/Cloudinary");
 
 const storage = new CloudinaryStorage({
-  cloudinary: cloudinary,
+  cloudinary,
   params: {
     folder: "intellReview_research_paper",
     resource_type: "raw",
     format: async (req, file) => "pdf",
-    public_id: (req, file) => {
-      return `${Date.now()}-${file.originalname}`;
-    },
+    public_id: (req, file) => `${Date.now()}-${file.originalname}`,
   },
 });
 
 const upload = multer({
-  storage: storage,
+  storage,
   fileFilter: (req, file, cb) => {
-    if (file.mimetype === "application/pdf") {
-      cb(null, true);
-    } else {
-      cb(new Error("Only PDF files are allowed!"), false);
-    }
+    cb(null, file.mimetype === "application/pdf");
   },
-  limits: {
-    fileSize: 10 * 1024 * 1024,
-  },
+  limits: { fileSize: 10 * 1024 * 1024 },
 });
 
 module.exports = upload;

@@ -65,7 +65,7 @@ fun HomeScreen() {
                     onMenuClick = {
                         coroutineScope.launch { drawerState.open() }
                     },
-                    inputname = "intelligent"
+                    inputname = searchQuery
 
                 )
             },

@@ -88,7 +88,7 @@ fun MainScreen() {
             modifier = Modifier.padding(innerPadding)
         ) {
             composable(Screen.Home.route) {
-                HomeScreen()
+                HomeScreen(navController)
             }
             composable(Screen.Favourites.route) {
                 CreateAccountScreen(navController = navController,userRepository = userRepository)

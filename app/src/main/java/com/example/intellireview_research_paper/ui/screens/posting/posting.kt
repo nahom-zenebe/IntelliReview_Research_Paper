@@ -1,15 +1,14 @@
-
 package com.example.intellireview_research_paper.ui.components
 
 import android.content.Context
 import android.net.Uri
-import android.provider.MediaStore
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -41,36 +40,43 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.intellireview_research_paper.R
 import com.example.intellireview_research_paper.viewmodel.CreatePostViewModel
+import java.io.File
+import java.io.FileOutputStream
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PostingScreen(viewModel: CreatePostViewModel) {
+fun PostingScreen(
+    viewModel: CreatePostViewModel = viewModel()
+) {
     val context = LocalContext.current
-    var researchTitle by remember { mutableStateOf(TextFieldValue()) }
-    var authors by remember { mutableStateOf(TextFieldValue()) }
+
+    var researchTitle by remember { mutableStateOf("") }
+    var authorsText by remember { mutableStateOf("") }
     var selectedCategory by remember { mutableStateOf("") }
-    var categoryExpanded by remember { mutableStateOf(false) }
-    var filePath by remember { mutableStateOf<String?>(null) }
+    var expanded by remember { mutableStateOf(false) }
+    var selectedFile by remember { mutableStateOf<File?>(null) }
     val categories = listOf("AI", "Maths", "Programming")
 
-    val fileLauncher = rememberLauncherForActivityResult(
+    // PDF picker launcher
+    val launcher = rememberLauncherForActivityResult(
         ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
         uri?.let {
-            val path = getRealPathFromURI(context, it)
-            filePath = path
-            viewModel.pdfUrl.value = path
+            val file = copyUriToFile(context, it)
+            selectedFile = file
+            viewModel.pdfUrl.value = file.absolutePath
         }
     }
 
-    Column(modifier = Modifier.fillMaxSize()) {
+    Column(Modifier.fillMaxSize()) {
+        // Header image + title
         Box(
-            modifier = Modifier
+            Modifier
                 .fillMaxWidth()
                 .height(180.dp)
         ) {
@@ -91,42 +97,41 @@ fun PostingScreen(viewModel: CreatePostViewModel) {
         }
 
         Surface(
-            modifier = Modifier
+            Modifier
                 .fillMaxWidth()
                 .weight(1f),
             shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
             color = Color.White.copy(alpha = 0.95f)
         ) {
-            Column(modifier = Modifier.padding(16.dp)) {
+            Column(
+                Modifier.padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                // Title field
                 OutlinedTextField(
                     value = researchTitle,
                     onValueChange = {
                         researchTitle = it
-                        viewModel.title.value = it.text
+                        viewModel.title.value = it
                     },
                     label = { Text("Research Title") },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 16.dp),
+                    modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(8.dp)
                 )
-
+                // Authors field
                 OutlinedTextField(
-                    value = authors,
+                    value = authorsText,
                     onValueChange = {
-                        authors = it
-                        viewModel.authors.value = it.text
+                        authorsText = it
+                        viewModel.authors.value = it
                     },
                     label = { Text("Authors") },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 16.dp),
+                    modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(8.dp)
                 )
 
-                Box(modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 16.dp)) {
+                // Category dropdown
+                Box(Modifier.fillMaxWidth()) {
                     OutlinedTextField(
                         value = if (selectedCategory.isEmpty()) "Choose category" else selectedCategory,
                         onValueChange = {},
@@ -134,8 +139,8 @@ fun PostingScreen(viewModel: CreatePostViewModel) {
                         trailingIcon = {
                             Icon(
                                 Icons.Default.ArrowDropDown,
-                                contentDescription = "Show category options",
-                                modifier = Modifier.clickable { categoryExpanded = true }
+                                contentDescription = null,
+                                modifier = Modifier.clickable { expanded = true }
                             )
                         },
                         modifier = Modifier.fillMaxWidth(),
@@ -146,59 +151,64 @@ fun PostingScreen(viewModel: CreatePostViewModel) {
                             focusedBorderColor = Color.Transparent
                         )
                     )
-
                     DropdownMenu(
-                        expanded = categoryExpanded,
-                        onDismissRequest = { categoryExpanded = false },
+                        expanded = expanded,
+                        onDismissRequest = { expanded = false },
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        categories.forEach { category ->
+                        categories.forEach { cat ->
                             DropdownMenuItem(
-                                text = { Text(category) },
+                                text = { Text(cat) },
                                 onClick = {
-                                    selectedCategory = category
-                                    viewModel.category.value = category
-                                    categoryExpanded = false
+                                    selectedCategory = cat
+                                    viewModel.category.value = cat
+                                    expanded = false
                                 }
                             )
                         }
                     }
                 }
 
+                // PDF Upload / Change button
                 Button(
-                    onClick = { fileLauncher.launch("application/pdf") },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 16.dp),
+                    onClick = { launcher.launch("application/pdf") },
+                    Modifier.fillMaxWidth(),
                     colors = ButtonDefaults.buttonColors(containerColor = Color.White),
                     border = BorderStroke(1.dp, Color.Black)
                 ) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text("Upload PDF", color = Color.Black)
-                        Icon(
-                            imageVector = Icons.Filled.Image,
-                            contentDescription = "Upload",
-                            tint = Color.Black
-                        )
-                    }
+                    Text(
+                        text = if (selectedFile == null) "Upload PDF" else "Change PDF",
+                        color = Color.Black
+                    )
+                    Icon(
+                        imageVector = Icons.Default.Image,
+                        contentDescription = null,
+                        tint = Color.Black
+                    )
                 }
+                selectedFile?.let { Text("Selected: ${it.name}") }
 
+                // POST button
                 Button(
                     onClick = {
-                        if (researchTitle.text.isNotEmpty() &&
-                            authors.text.isNotEmpty() &&
-                            selectedCategory.isNotEmpty() &&
-                            filePath != null) {
-                            viewModel.createPaper()
-                        } else {
+                        if (researchTitle.isBlank() || authorsText.isBlank() ||
+                            selectedCategory.isBlank() || selectedFile == null
+                        ) {
                             Toast.makeText(
                                 context,
-                                "Please fill all fields and select a PDF file",
+                                "Fill all fields & choose a PDF",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        } else {
+                            viewModel.createPaper()
+                            Toast.makeText(
+                                context,
+                                "Uploading…",
                                 Toast.LENGTH_SHORT
                             ).show()
                         }
                     },
-                    modifier = Modifier.fillMaxWidth()
+                    Modifier.fillMaxWidth()
                 ) {
                     Text("POST")
                 }
@@ -207,14 +217,17 @@ fun PostingScreen(viewModel: CreatePostViewModel) {
     }
 }
 
-private fun getRealPathFromURI(context: Context, uri: Uri): String? {
-    val cursor = context.contentResolver.query(uri, null, null, null, null)
-    return cursor?.use {
-        if (it.moveToFirst()) {
-            val idx = it.getColumnIndex(MediaStore.Files.FileColumns.DATA)
-            if (idx >= 0) it.getString(idx) else uri.path
-        } else {
-            uri.path
+/**
+ * Copy the content of a URI to a temporary file and return it.
+ */
+private fun copyUriToFile(context: Context, uri: Uri): File {
+    val inputStream = context.contentResolver.openInputStream(uri)
+        ?: throw IllegalArgumentException("Cannot open input stream for URI: $uri")
+    val tempFile = File.createTempFile("upload_", ".pdf", context.cacheDir)
+    FileOutputStream(tempFile).use { output ->
+        inputStream.use { input ->
+            input.copyTo(output)
         }
     }
+    return tempFile
 }
