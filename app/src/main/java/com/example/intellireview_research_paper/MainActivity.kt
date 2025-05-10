@@ -4,7 +4,6 @@ import Bookmark
 import BottomNavBar
 import CreateAccountScreen
 import UserApiClient
-import UserProfileScreen
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -27,6 +26,7 @@ import com.example.intellireview_research_paper.data.remote.UserApi
 import com.example.intellireview_research_paper.ui.components.PostingScreen
 import com.example.intellireview_research_paper.ui.navigation.Screen
 import com.example.intellireview_research_paper.ui.screens.HomeScreen
+import com.example.intellireview_research_paper.ui.screens.LoginScreen
 import com.example.intellireview_research_paper.ui.theme.IntelliReview_Research_PaperTheme
 import com.example.intellireview_research_paper.viewmodel.CreatePostViewModel
 
@@ -96,7 +96,7 @@ fun MainScreen() {
             }
             composable(Screen.Grid.route) {
                 CreateAccountScreen(navController = navController,userRepository = userRepository)
-//                LoginScreen(navController = navController)
+
             }
             composable(Screen.Messages.route) {
                 // Provide the ViewModel here:
@@ -104,12 +104,13 @@ fun MainScreen() {
                 PostingScreen(viewModel = createPostViewModel)
             }
             composable(Screen.Profile.route) {
-                UserProfileScreen()
+                                LoginScreen(
+                                    navController = navController,
+                                    userRepository = userRepository,
+                                    onBackClick = {}
+                                )
             }
 
-            composable(Screen.CreateAccountScreen.route) {
-                CreateAccountScreen(navController = navController,userRepository = userRepository)
-            }
 
         }
     }

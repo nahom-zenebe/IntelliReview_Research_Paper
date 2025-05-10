@@ -1,17 +1,36 @@
+package com.example.intellireview_research_paper.ui.screens
 
-
+import UserViewModel
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -23,7 +42,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModel
@@ -32,232 +50,162 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.intellireview_research_paper.R
 import com.example.intellireview_research_paper.data.mapper.UserRepositoryImpl
-import com.example.intellireview_research_paper.ui.navigation.Screen
-
-
-
-@Composable
-fun TopBannerImage() {
-    Image(
-        painter = painterResource(id = R.drawable.research_paper),
-        contentDescription = "Top Banner",
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(300.dp)
-            .padding(top = 32.dp)
-    )
-}
 
 @Composable
 fun LoginScreen(
-    onLoginClick: (String, String) -> Unit = { _, _ -> },
     navController: NavController,
-
+    userRepository: UserRepositoryImpl,
+    onBackClick: () -> Unit = {}
 ) {
-    class UserViewModelFactory(private val userRepository: UserRepositoryImpl) : ViewModelProvider.Factory {
+    // Local UI state for email/password
+    var email by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
+    var passwordVisible by remember { mutableStateOf(false) }
+
+    // Factory to provide UserViewModel
+    class UserViewModelFactory(private val repo: UserRepositoryImpl) : ViewModelProvider.Factory {
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             if (modelClass.isAssignableFrom(UserViewModel::class.java)) {
-                return UserViewModel(userRepository) as T
+                @Suppress("UNCHECKED_CAST")
+                return UserViewModel(repo) as T
             }
             throw IllegalArgumentException("Unknown ViewModel class")
         }
     }
 
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-    var passwordVisible by remember { mutableStateOf(false) }
+    // Obtain ViewModel
+    val viewModel: UserViewModel = viewModel(factory = UserViewModelFactory(userRepository))
 
-
-    val viewModel: UserViewModel = viewModel()
+    // Observe login state
+    val isLoading = viewModel.isLoading
+    val error = viewModel.errorMessage
     val user = viewModel.user
     val context = LocalContext.current
 
+    // On successful login, navigate
     LaunchedEffect(user) {
         if (user != null) {
             Toast.makeText(context, "Login successful!", Toast.LENGTH_SHORT).show()
-            navController.navigate(Screen.Home.route) {
-                popUpTo(Screen.Grid.route) { inclusive = true }
-            }
-        }
-    }
-
-    LaunchedEffect(user) {
-        if (user != null) {
-            Toast.makeText(context, "Signup successful!", Toast.LENGTH_SHORT).show()
             navController.navigate("home") {
-                popUpTo("signup") { inclusive = true }
+                popUpTo("login") { inclusive = true }
             }
-
         }
     }
-
+    // Show error toast
+    LaunchedEffect(error) {
+        error?.let {
+            Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
+            viewModel.clearStatus()
+        }
+    }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
     ) {
-        TopBannerImage()
+        // Banner image
+        Image(
+            painter = painterResource(id = R.drawable.research_paper),
+            contentDescription = null,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(300.dp)
+                .padding(top = 32.dp)
+        )
 
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 24.dp),
+                .padding(24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Spacer(modifier = Modifier.height(16.dp))
-
+            IconButton(onClick = onBackClick, Modifier.align(Alignment.Start)) {
+                Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+            }
             Text(
-                text = "Login",
+                "Login",
                 fontSize = 32.sp,
                 fontWeight = FontWeight.ExtraBold,
-                color = Color(0xff36454f)
+                color = Color(0xff36454f),
+                modifier = Modifier.padding(vertical = 16.dp)
             )
 
-            Spacer(modifier = Modifier.height(24.dp))
-
-            // Email
-            Column(modifier = Modifier.fillMaxWidth()) {
-                Text(
-                    text = "Email",
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color(0xff36454f)
+            // Email field
+            OutlinedTextField(
+                value = email,
+                onValueChange = { email = it },
+                label = { Text("Email") },
+                placeholder = { Text("johndoe@example.com") },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(25.dp),
+                colors = OutlinedTextFieldDefaults.colors(
+                    unfocusedContainerColor = Color(0xFFD3D3D3),
+                    focusedContainerColor = Color(0xFFF0F0F0),
+                    unfocusedBorderColor = Color.Transparent,
+                    focusedBorderColor = Color.Transparent
                 )
-                Spacer(modifier = Modifier.height(10.dp))
-                OutlinedTextField(
-                    value = email,
-                    onValueChange = { email = it },
-                    placeholder = { Text("Johndoe@example.com") },
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(25.dp),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        unfocusedContainerColor = Color(0xFFD3D3D3),
-                        focusedContainerColor = Color(0xFFF0F0F0),
-                        unfocusedBorderColor = Color.Transparent,
-                        focusedBorderColor = Color.Transparent
-                    )
-                )
-            }
+            )
+            Spacer(Modifier.height(16.dp))
 
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Password
-            Column(modifier = Modifier.fillMaxWidth()) {
-                Text(
-                    text = "Password",
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color(0xff36454f)
-                )
-                Spacer(modifier = Modifier.height(10.dp))
-                OutlinedTextField(
-                    value = password,
-                    onValueChange = { password = it },
-                    placeholder = { Text("••••••••") },
-                    singleLine = true,
-                    visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-                    trailingIcon = {
-                        val image = if (passwordVisible)
-                            Icons.Default.Visibility
-                        else Icons.Default.VisibilityOff
-
-                        IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                            Icon(
-                                imageVector = image,
-                                contentDescription = if (passwordVisible) "Hide password" else "Show password"
-                            )
-                        }
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(25.dp),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        unfocusedContainerColor = Color(0xFFD3D3D3),
-                        focusedContainerColor = Color(0xFFF0F0F0),
-                        unfocusedBorderColor = Color.Transparent,
-                        focusedBorderColor = Color.Transparent
-                    )
-                )
-            }
-
-            Spacer(modifier = Modifier.height(25.dp))
-
-            Button(
-                onClick ={
-                    if (email.isNotEmpty() && password.isNotEmpty()) {
-                        viewModel.login(email, (password.toIntOrNull() ?: 0).toString())
-                    } else {
-                        Toast.makeText(context, "Please fill all fields", Toast.LENGTH_SHORT).show()
+            // Password field
+            OutlinedTextField(
+                value = password,
+                onValueChange = { password = it },
+                label = { Text("Password") },
+                placeholder = { Text("••••••••") },
+                singleLine = true,
+                visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                trailingIcon = {
+                    val icon = if (passwordVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility
+                    IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                        Icon(icon, contentDescription = null)
                     }
                 },
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(25.dp),
+                colors = OutlinedTextFieldDefaults.colors(
+                    unfocusedContainerColor = Color(0xFFD3D3D3),
+                    focusedContainerColor = Color(0xFFF0F0F0),
+                    unfocusedBorderColor = Color.Transparent,
+                    focusedBorderColor = Color.Transparent
+                )
+            )
+            Spacer(Modifier.height(24.dp))
+
+            // Login button
+            Button(
+                onClick = { viewModel.login(email, password) },
+                enabled = !isLoading,
                 modifier = Modifier
                     .fillMaxWidth(0.6f)
-                    .padding(vertical = 12.dp),
-                contentPadding = PaddingValues(horizontal = 24.dp, vertical = 16.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(red = 93, green = 92, blue = 187)
-                )
+                    .height(48.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF5D5CBB))
             ) {
                 Text(
-                    text = "Login",
-                    fontSize = 20.sp,
+                    if (isLoading) "Logging in..." else "Login",
+                    fontSize = 18.sp,
                     fontWeight = FontWeight.Bold
                 )
             }
 
-            Spacer(modifier = Modifier.height(40.dp))
-
-            HorizontalDivider(
-                color = Color.Gray,
-                modifier = Modifier.fillMaxWidth(0.8f)
-            )
+            Spacer(Modifier.height(24.dp))
+            HorizontalDivider(color = Color.Gray, modifier = Modifier.fillMaxWidth(0.8f))
+            Spacer(Modifier.height(8.dp))
 
             Text(
-                text = buildAnnotatedString {
+                buildAnnotatedString {
                     append("No account? ")
-                    withStyle(
-                        SpanStyle(
-                            color = Color(red = 93, green = 92, blue = 187),
-                            fontWeight = FontWeight.Bold
-                        )
-                    ) {
+                    withStyle(SpanStyle(color = Color(0xFF5D5CBB), fontWeight = FontWeight.Bold)) {
                         append("Sign up")
                     }
                 },
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Medium,
-                color = Color(0xff36454f),
+                fontSize = 14.sp,
                 modifier = Modifier
-                    .clickable {
-                        navController.navigate(Screen.CreateAccountScreen.route)
-                    }
-                    .padding(top = 12.dp)
+                    .clickable { navController.navigate("signup") }
+                    .padding(vertical = 16.dp)
             )
-
-            Spacer(modifier = Modifier.height(24.dp))
         }
     }
 }
-
-@Preview(showBackground = true, showSystemUi = true)
-@Composable
-fun LoginScreenPreview() {
-    // Use your app's theme if you have one
-    MaterialTheme {
-        Surface(
-            modifier = Modifier.fillMaxSize(),
-            color = MaterialTheme.colorScheme.background
-        ) {
-//            LoginScreen(
-//                onLoginClick = { email, password ->
-//                    println("Login clicked with: $email, $password")
-//                },
-//                onNavigateToSignup = {
-//                    println("Navigate to Signup clicked")
-//                }
-//            )
-        }
-    }
-}
-
