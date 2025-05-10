@@ -6,6 +6,7 @@ const bodyParser = require("body-parser");
 const app = express();
 const Cloundinary = require("../utils/Cloudinary");
 
+app.use(express.json());
 app.use(bodyParser.json()); // for parsing application/json
 app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
 

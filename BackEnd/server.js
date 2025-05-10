@@ -1,28 +1,25 @@
 require("dotenv").config();
-
 const express = require("express");
-const authrouter = require("./router/authRouther");
-const paperRouter = require("./router/paperRouter");
-const ReviewRouter = require("./router/ReviewRouter");
-const CategoryRouter = require("./router/CategoryRouter");
-const NotificationRouter = require("./router/NotificationRouter");
-const { MongoDBconfig } = require("./utils/mongoconfig");
 const bodyParser = require("body-parser");
 const cors = require("cors");
+
+const authRouter = require("./router/authRouter");
+const paperRouter = require("./router/paperRouter");
+const reviewRouter = require("./router/ReviewRouter");
+const categoryRouter = require("./router/CategoryRouter");
+const notificationRouter = require("./router/NotificationRouter");
+const { MongoDBconfig } = require("./utils/mongoconfig");
+
 const app = express();
 
+// 1) Parse JSON bodies
 app.use(express.json());
-app.use("/api/auth", authrouter);
-app.use("/api/paper", paperRouter);
-app.use("/api/review", ReviewRouter);
-app.use("/api/category", CategoryRouter);
-app.use("/notification", NotificationRouter);
 
-const PORT = process.env.PORT || 3003;
+// 2) Parse URL‑encoded form bodies
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
 
-app.use(bodyParser.json()); // for parsing application/json
-app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
-
+// 3) Enable CORS if needed
 app.use(
   cors({
     origin: "*",
@@ -31,10 +28,20 @@ app.use(
   })
 );
 
-app.listen(PORT, (err) => {
-  if (err) {
-    console.log(`error while listening on PORT ${process.env.PORT}`, err);
+// 4) Mount routers after body parsing middleware
+app.use("/api/auth", authRouter);
+app.use("/api/paper", paperRouter);
+app.use("/api/review", reviewRouter);
+app.use("/api/category", categoryRouter);
+app.use("/notification", notificationRouter);
+
+// 5) Start server and connect to MongoDB
+const PORT = process.env.PORT || 3003;
+app.listen(PORT, async () => {
+  try {
+    await MongoDBconfig();
+    console.log(`Listening on port ${PORT}...`);
+  } catch (err) {
+    console.error("Failed to connect to MongoDB:", err);
   }
-  MongoDBconfig();
-  console.log(`Listening on port ${process.env.PORT}...`);
 });
