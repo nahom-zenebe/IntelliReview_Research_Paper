@@ -26,9 +26,12 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.intellireview_research_paper.R
+import com.example.intellireview_research_paper.data.mapper.UserRepositoryImpl
 import com.example.intellireview_research_paper.ui.navigation.Screen
 import com.example.intellireview_research_paper.ui.viewmodel.UserViewModel
 
@@ -49,7 +52,17 @@ fun TopBannerImage() {
 fun LoginScreen(
     onLoginClick: (String, String) -> Unit = { _, _ -> },
     navController: NavController,
+
 ) {
+    class UserViewModelFactory(private val userRepository: UserRepositoryImpl) : ViewModelProvider.Factory {
+        override fun <T : ViewModel> create(modelClass: Class<T>): T {
+            if (modelClass.isAssignableFrom(UserViewModel::class.java)) {
+                return UserViewModel(userRepository) as T
+            }
+            throw IllegalArgumentException("Unknown ViewModel class")
+        }
+    }
+
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
@@ -65,6 +78,16 @@ fun LoginScreen(
             navController.navigate(Screen.Home.route) {
                 popUpTo(Screen.Grid.route) { inclusive = true }
             }
+        }
+    }
+
+    LaunchedEffect(user) {
+        if (user != null) {
+            Toast.makeText(context, "Signup successful!", Toast.LENGTH_SHORT).show()
+            navController.navigate("home") {
+                popUpTo("signup") { inclusive = true }
+            }
+
         }
     }
 
