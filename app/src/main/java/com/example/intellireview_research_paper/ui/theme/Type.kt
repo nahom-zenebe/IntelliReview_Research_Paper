@@ -5,6 +5,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
+import com.example.intellireview_research_paper.R
 
 // Set of Material typography styles to start with
 val Typography = Typography(
@@ -15,6 +16,9 @@ val Typography = Typography(
         lineHeight = 24.sp,
         letterSpacing = 0.5.sp
     )
+
+    // other text styles...
+)
 
     /* Other default text styles to override
     titleLarge = TextStyle(
@@ -32,4 +36,3 @@ val Typography = Typography(
         letterSpacing = 0.5.sp
     )
     */
-)

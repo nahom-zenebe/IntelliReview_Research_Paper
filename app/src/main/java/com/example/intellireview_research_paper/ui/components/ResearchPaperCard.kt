@@ -147,3 +147,95 @@ fun ResearchPaperCard(
         }
     }
 }
+
+
+@Composable
+fun ResearchPaperCardNorating(
+    title: String,
+    imageRes: Int,
+    publishedDate: String = "Placeholder Date",
+    authorName: String = "Placeholder Author"
+){
+    Card(
+        colors = CardDefaults.cardColors(containerColor = Color(0xFF5D5CBB)),
+        shape = RoundedCornerShape(16.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(IntrinsicSize.Min)
+            .padding(vertical = 4.dp)
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Image(
+                    painter = painterResource(id = imageRes),
+                    contentDescription = "Preview Image",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .size(60.dp)
+                        .clip(CircleShape)
+                )
+                Spacer(modifier = Modifier.width(12.dp))
+                Text(
+                    text = title,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White,
+                    modifier = Modifier.weight(1f)
+                )
+            }
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            Text(
+                text = "Published: $publishedDate",
+                fontSize = 10.sp,
+                color = Color.White.copy(alpha = 0.9f)
+            )
+            Text(
+                text = "Author: $authorName",
+                fontSize = 10.sp,
+                color = Color.White.copy(alpha = 0.9f)
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Button(
+                    onClick = { /* Handle read */ },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.White),
+                    shape = RoundedCornerShape(18.dp),
+                    contentPadding = PaddingValues(horizontal = 23.dp, vertical = 0.dp),
+                    modifier = Modifier.height(32.dp)
+                ) {
+                    Text("Read", color = Color(0xFF5D5CBB), fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
+                }
+
+                Spacer(modifier = Modifier.width(12.dp))
+
+                Spacer(modifier = Modifier.weight(1f))
+
+                listOf(
+                    Icons.Outlined.FileDownload to "Download",
+                    Icons.Default.BookmarkBorder to "Bookmark",
+                    Icons.Outlined.ChatBubbleOutline to "Comment",
+                    Icons.Default.Share to "Share"
+                ).forEach { (icon, desc) ->
+                    IconButton(
+                        onClick = { /* Handle action */ },
+                        modifier = Modifier.size(36.dp)
+                    ) {
+                        Icon(
+                            imageVector = icon,
+                            contentDescription = desc,
+                            tint = Color.White,
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
+                }
+            }
+        }
+    }
+}

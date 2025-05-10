@@ -23,7 +23,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import com.example.intellireview_research_paper.ui.navigation.Screen
 
 
@@ -31,7 +31,7 @@ import com.example.intellireview_research_paper.ui.navigation.Screen
 fun BottomNavBar(
     selectedItem: Int,
     onItemSelected: (Int) -> Unit,
-    navController: NavController,
+    navController: NavHostController,
     modifier: Modifier = Modifier
 ) {
     val items = listOf(
