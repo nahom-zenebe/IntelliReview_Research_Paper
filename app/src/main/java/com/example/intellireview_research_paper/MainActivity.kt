@@ -3,7 +3,7 @@ package com.example.intellireview_research_paper
 import Bookmark
 import BottomNavBar
 import CreateAccountScreen
-import LoginScreen
+import UserApiClient
 import UserProfileScreen
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -24,7 +24,6 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.intellireview_research_paper.data.mapper.UserRepositoryImpl
 import com.example.intellireview_research_paper.data.remote.UserApi
-import com.example.intellireview_research_paper.data.remote.UserApiClient
 import com.example.intellireview_research_paper.ui.components.PostingScreen
 import com.example.intellireview_research_paper.ui.navigation.Screen
 import com.example.intellireview_research_paper.ui.screens.HomeScreen
@@ -91,12 +90,13 @@ fun MainScreen() {
                 HomeScreen(navController)
             }
             composable(Screen.Favourites.route) {
-                CreateAccountScreen(navController = navController,userRepository = userRepository)
-               // Bookmark(onMenuClick = {})
+
+                Bookmark(onMenuClick = {})
 
             }
             composable(Screen.Grid.route) {
-                LoginScreen(navController = navController)
+                CreateAccountScreen(navController = navController,userRepository = userRepository)
+//                LoginScreen(navController = navController)
             }
             composable(Screen.Messages.route) {
                 // Provide the ViewModel here:
