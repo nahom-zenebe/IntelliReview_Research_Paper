@@ -15,7 +15,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.annotation.DrawableRes
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.res.painterResource
 import com.example.intellireview_research_paper.MainScreen
 import com.example.intellireview_research_paper.R
@@ -23,51 +29,92 @@ import com.example.intellireview_research_paper.ui.components.BookmarkCard
 import com.example.intellireview_research_paper.ui.components.HomeTopBar
 import com.example.intellireview_research_paper.ui.components.SearchBar
 import com.example.intellireview_research_paper.ui.theme.IntelliReview_Research_PaperTheme
+import com.example.intellireview_research_paper.model.paperModel
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Bookmark( onMenuClick: () -> Unit) {
+fun BookmarkScreen(
+    onMenuClick: () -> Unit,
+    bookmarkedPapers: List<paperModel>,
+    onBookmarkToggle: (paperModel) -> Unit,
+    onPaperClick: (paperModel) -> Unit = {}
+) {
     var selectedFilter by remember { mutableStateOf<String?>(null) }
     var selectedSort by remember { mutableStateOf<String?>(null) }
-    var query  by remember { mutableStateOf("") }
+    var query by remember { mutableStateOf("") }
 
     Scaffold(
         topBar = {
             TopAppBar(
-
-                { HomeTopBar(onMenuClick = onMenuClick, inputname ="Bookmarks") }
+                title = {
+                    HomeTopBar(
+                        onMenuClick = onMenuClick,
+                        inputname = "Bookmarks"
+                    )
+                }
             )
         }
     ) { innerPadding ->
+        Column(
+            modifier = Modifier
+                .padding(innerPadding)
+                .fillMaxSize()
+        ) {
+            SearchBar(
+                query = query,
+                onQueryChanged = { query = it }
+            )
 
-        Column(modifier = Modifier.padding(innerPadding)) {
-            SearchBar(query, onQueryChanged = {query=it})
-            FilterSortRow(selectedFilter = selectedFilter,
+            FilterSortRow(
+                selectedFilter = selectedFilter,
                 onFilterSelected = { selectedFilter = it },
                 selectedSort = selectedSort,
-                onSortSelected = { selectedSort = it })
+                onSortSelected = { selectedSort = it }
+            )
 
-            Spacer(Modifier.height(30.dp))
+            Spacer(Modifier.height(16.dp))
 
-            BookmarkCard(imageUrl = R.drawable.research_paper, title = "Sample Title")
-
-            Spacer(Modifier.height(10.dp))
-            BookmarkCard(imageUrl= R.drawable.research_paper, title = "Sample Title")
-
-            Spacer(Modifier.height(10.dp))
-            BookmarkCard(imageUrl = R.drawable.research_paper, title = "Sample Title")
-
-
-
-
+            when {
+                bookmarkedPapers.isEmpty() -> {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(16.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "No bookmarks yet",
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                        )
+                    }
+                }
+                else -> {
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        items(bookmarkedPapers) { paper ->
+                            BookmarkCard(
+                                imageUrl = R.drawable.research_paper,
+                                title = paper.title.orEmpty(),
+                                isBookmarked = true,
+                                onBookmarkClick = { onBookmarkToggle(paper) },
+                                onClick = { onPaperClick(paper) }
+                            )
+                        }
+                    }
+                }
+            }
         }
     }
 }
+
 
 @Preview(showBackground = true)
 @Composable
 fun BookmarkPreview() {
 
-    Bookmark(onMenuClick = {})
+
 }

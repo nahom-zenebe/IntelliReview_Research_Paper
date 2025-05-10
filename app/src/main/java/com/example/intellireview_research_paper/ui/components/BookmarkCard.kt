@@ -15,9 +15,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
+
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Card
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Bookmark
+import androidx.compose.material.icons.outlined.BookmarkBorder
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -41,68 +44,57 @@ import androidx.compose.ui.unit.dp
 
 
 @Composable
-fun BookmarkCard(@DrawableRes imageUrl: Int, title: String) {
-    var expanded by remember { mutableStateOf(false) }
-
+fun BookmarkCard(
+    @DrawableRes imageUrl: Int,
+    title: String,
+    isBookmarked: Boolean,
+    onBookmarkClick: () -> Unit,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(90.dp)
-            .padding(8.dp),
-
-        elevation = CardDefaults.cardElevation(4.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = Color(0xFF5D5CBB)
-        )
-
+        onClick = onClick,
+        modifier = modifier.fillMaxWidth()
     ) {
-        Row (
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 16.dp, vertical = 12.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-
-            // Left: Circular Image and Title
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Image(
+        Box {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
                     painter = painterResource(id = imageUrl),
-                    contentDescription = "Bookmark Image",
-                    modifier = Modifier
-                        .size(48.dp)
-                        .clip(CircleShape),
-                    contentScale = ContentScale.Crop
+                    contentDescription = "Research paper",
+                    modifier = Modifier.size(48.dp)
                 )
 
-                Spacer(modifier = Modifier.width(12.dp))
+                Spacer(Modifier.width(16.dp))
+
                 Text(
                     text = title,
-                    style = MaterialTheme.typography.titleMedium
-                    , color = Color.White
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier.weight(1f)
                 )
-            }
 
-            // Right: Three-dot menu
-            Box {
-                IconButton(onClick = { expanded = true }) {
-                    Icon(
-                        imageVector = Icons.Default.MoreVert,
-                        contentDescription = "More Options",
-                        tint = Color.White
-                    )
-                }
-
-                DropdownMenu(
-                    expanded = expanded,
-                    onDismissRequest = { expanded = false }
+                IconButton(
+                    onClick = { onBookmarkClick() }
                 ) {
-                    DropdownMenuItem(text = { Text("Edit") }, onClick = { /* handle edit */ })
-                    DropdownMenuItem(text = { Text("Delete") }, onClick = { /* handle delete */ })
+                    Icon(
+                        imageVector = if (isBookmarked) {
+                            Icons.Filled.Bookmark
+                        } else {
+                            Icons.Outlined.BookmarkBorder
+                        },
+                        contentDescription = if (isBookmarked) {
+                            "Remove bookmark"
+                        } else {
+                            "Add bookmark"
+                        },
+                        tint = MaterialTheme.colorScheme.primary
+                    )
                 }
             }
         }
     }
 }
-
-

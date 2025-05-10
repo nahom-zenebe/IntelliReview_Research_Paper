@@ -1,7 +1,8 @@
 @file:OptIn(ExperimentalMaterial3Api::class)
 
 package com.example.intellireview_research_paper.ui.screens
-
+import androidx.compose.material.icons.filled.Bookmark
+import androidx.compose.material.icons.outlined.BookmarkBorder
 import FilterSortRow
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -14,7 +15,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.outlined.BookmarkBorder
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -33,6 +36,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.intellireview_research_paper.R
@@ -56,7 +60,7 @@ fun HomeScreen(
     // Drawer state
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val coroutineScope = rememberCoroutineScope()
-
+    var bookmarkedPaperIds by remember { mutableStateOf<Set<String>>(emptySet()) }
     // Repository
     val repo = remember { PaperRepositoryImpl() }
 
@@ -148,6 +152,32 @@ fun HomeScreen(
                                             contentDescription = "Edit",
                                             tint = MaterialTheme.colorScheme.primary
                                         )
+                                        IconButton(
+                                            onClick = {
+                                                paper.paperId?.let { paperId ->
+                                                    bookmarkedPaperIds = if (bookmarkedPaperIds.contains(paperId)) {
+                                                        bookmarkedPaperIds - paperId
+                                                    } else {
+                                                        bookmarkedPaperIds + paperId
+                                                    }
+                                                }
+                                            }
+                                        ) {
+                                            Icon(
+                                                imageVector = if (paper.paperId in bookmarkedPaperIds) {
+                                                    Icons.Filled.Bookmark
+                                                } else {
+                                                    Icons.Outlined.BookmarkBorder
+                                                },
+                                                contentDescription = if (paper.paperId in bookmarkedPaperIds) {
+                                                    "Remove bookmark"
+                                                } else {
+                                                    "Add bookmark"
+                                                },
+                                                tint = MaterialTheme.colorScheme.primary
+                                            )
+                                        }
+                                        }
                                     }
                                 }
                             }
@@ -157,4 +187,3 @@ fun HomeScreen(
             }
         }
     }
-}
