@@ -7,4 +7,6 @@ sealed class Screen(val route: String) {
     object Messages : Screen("messages")
     object Profile : Screen("profile")
     object  CreateAccountScreen:Screen("signup")
+    object  createCategory:Screen("createCategory")
+
 }

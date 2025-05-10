@@ -38,6 +38,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.intellireview_research_paper.ui.viewmodel.BookmarkViewModel
 import androidx.navigation.NavController
 import com.example.intellireview_research_paper.R
 import com.example.intellireview_research_paper.data.repository.PaperRepositoryImpl
@@ -60,7 +62,10 @@ fun HomeScreen(
     // Drawer state
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val coroutineScope = rememberCoroutineScope()
-    var bookmarkedPaperIds by remember { mutableStateOf<Set<String>>(emptySet()) }
+    val bookmarkViewModel: BookmarkViewModel = viewModel()
+    val bookmarkedPapers = bookmarkViewModel.bookmarkedPapers.value
+    val bookmarkedPaperIds = bookmarkedPapers.mapNotNull { it.paperId }
+
     // Repository
     val repo = remember { PaperRepositoryImpl() }
 
@@ -152,38 +157,37 @@ fun HomeScreen(
                                             contentDescription = "Edit",
                                             tint = MaterialTheme.colorScheme.primary
                                         )
-                                        IconButton(
-                                            onClick = {
-                                                paper.paperId?.let { paperId ->
-                                                    bookmarkedPaperIds = if (bookmarkedPaperIds.contains(paperId)) {
-                                                        bookmarkedPaperIds - paperId
-                                                    } else {
-                                                        bookmarkedPaperIds + paperId
-                                                    }
-                                                }
-                                            }
-                                        ) {
-                                            Icon(
-                                                imageVector = if (paper.paperId in bookmarkedPaperIds) {
-                                                    Icons.Filled.Bookmark
-                                                } else {
-                                                    Icons.Outlined.BookmarkBorder
-                                                },
-                                                contentDescription = if (paper.paperId in bookmarkedPaperIds) {
-                                                    "Remove bookmark"
-                                                } else {
-                                                    "Add bookmark"
-                                                },
-                                                tint = MaterialTheme.colorScheme.primary
-                                            )
-                                        }
-                                        }
+
                                     }
+
+                                    IconButton(
+                                        onClick = {
+                                            bookmarkViewModel.toggleBookmark(paper)
+                                        }
+                                    ) {
+                                        Icon(
+                                            imageVector = if (paper.paperId in bookmarkedPaperIds) {
+                                                Icons.Filled.Bookmark
+                                            } else {
+                                                Icons.Outlined.BookmarkBorder
+                                            },
+                                            contentDescription = if (paper.paperId in bookmarkedPaperIds) {
+                                                "Remove bookmark"
+                                            } else {
+                                                "Add bookmark"
+                                            },
+                                            tint = MaterialTheme.colorScheme.primary
+                                        )
+
+
+
+                                    }
+
+
                                 }
-                            }
                         }
                     }
                 }
             }
         }
-    }
+    }}}

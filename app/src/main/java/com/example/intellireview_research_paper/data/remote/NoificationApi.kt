@@ -32,7 +32,7 @@ interface NotificationApi {
 
 object NotificationApiClient {
 
-    private const val BASE_URL = "https://localhost:3500/api/"
+    private const val BASE_URL = "http://10.0.2.2:3500/api/"
 
     private val retrofit = Retrofit.Builder()
         .baseUrl(BASE_URL)

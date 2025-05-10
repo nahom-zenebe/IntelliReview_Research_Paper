@@ -41,12 +41,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import com.example.intellireview_research_paper.R
+import com.example.intellireview_research_paper.model.paperModel
 
 
 @Composable
 fun BookmarkCard(
-    @DrawableRes imageUrl: Int,
-    title: String,
+    paper: paperModel,
     isBookmarked: Boolean,
     onBookmarkClick: () -> Unit,
     onClick: () -> Unit,
@@ -56,44 +57,32 @@ fun BookmarkCard(
         onClick = onClick,
         modifier = modifier.fillMaxWidth()
     ) {
-        Box {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                painter = painterResource(id = R.drawable.research_paper),
+                contentDescription = "Research paper",
+                modifier = Modifier.size(48.dp)
+            )
+
+            Spacer(Modifier.width(16.dp))
+
+            Text(
+                text = paper.title.orEmpty(),
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.weight(1f)
+            )
+
+            IconButton(onClick = onBookmarkClick) {
                 Icon(
-                    painter = painterResource(id = imageUrl),
-                    contentDescription = "Research paper",
-                    modifier = Modifier.size(48.dp)
+                    imageVector = if (isBookmarked) Icons.Filled.Bookmark else Icons.Outlined.BookmarkBorder,
+                    contentDescription = if (isBookmarked) "Remove bookmark" else "Add bookmark",
+                    tint = MaterialTheme.colorScheme.primary
                 )
-
-                Spacer(Modifier.width(16.dp))
-
-                Text(
-                    text = title,
-                    style = MaterialTheme.typography.titleMedium,
-                    modifier = Modifier.weight(1f)
-                )
-
-                IconButton(
-                    onClick = { onBookmarkClick() }
-                ) {
-                    Icon(
-                        imageVector = if (isBookmarked) {
-                            Icons.Filled.Bookmark
-                        } else {
-                            Icons.Outlined.BookmarkBorder
-                        },
-                        contentDescription = if (isBookmarked) {
-                            "Remove bookmark"
-                        } else {
-                            "Add bookmark"
-                        },
-                        tint = MaterialTheme.colorScheme.primary
-                    )
-                }
             }
         }
     }

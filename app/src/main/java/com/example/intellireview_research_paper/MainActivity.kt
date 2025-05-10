@@ -1,6 +1,7 @@
 package com.example.intellireview_research_paper
 
-import Bookmark
+
+import BookmarkScreen
 import BottomNavBar
 import CreateAccountScreen
 import UserApiClient
@@ -15,6 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.key.Key.Companion.Bookmark
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
@@ -23,10 +25,12 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.intellireview_research_paper.data.mapper.UserRepositoryImpl
 import com.example.intellireview_research_paper.data.remote.UserApi
+import com.example.intellireview_research_paper.model.paperModel
 import com.example.intellireview_research_paper.ui.components.PostingScreen
 import com.example.intellireview_research_paper.ui.navigation.Screen
 import com.example.intellireview_research_paper.ui.screens.HomeScreen
 import com.example.intellireview_research_paper.ui.screens.LoginScreen
+import com.example.intellireview_research_paper.ui.screens.category.CreateCategoryScreen
 import com.example.intellireview_research_paper.ui.theme.IntelliReview_Research_PaperTheme
 import com.example.intellireview_research_paper.viewmodel.CreatePostViewModel
 
@@ -59,7 +63,8 @@ fun MainScreen() {
         Screen.Favourites,
         Screen.Grid,
         Screen.Messages,
-        Screen.Profile
+        Screen.Profile,
+        Screen.createCategory
     )
 
     val selectedIndex = screens.indexOfFirst { it.route == currentRoute }
@@ -91,24 +96,36 @@ fun MainScreen() {
             }
             composable(Screen.Favourites.route) {
 
-                Bookmark(onMenuClick = {})
+                BookmarkScreen(
+                    onMenuClick = { /* Handle menu button click */ },
+                    navController = navController,
+                )
 
             }
             composable(Screen.Grid.route) {
                 CreateAccountScreen(navController = navController,userRepository = userRepository)
 
             }
+
             composable(Screen.Messages.route) {
                 // Provide the ViewModel here:
                 val createPostViewModel: CreatePostViewModel = viewModel()
                 PostingScreen(viewModel = createPostViewModel)
             }
+
             composable(Screen.Profile.route) {
                                 LoginScreen(
                                     navController = navController,
                                     userRepository = userRepository,
                                     onBackClick = {}
                                 )
+            }
+            composable(Screen.createCategory.route) {
+
+                CreateCategoryScreen(
+                    navController = navController,
+                )
+
             }
 
 

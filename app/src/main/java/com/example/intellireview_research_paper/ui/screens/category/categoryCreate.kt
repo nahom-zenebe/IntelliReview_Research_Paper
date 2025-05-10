@@ -6,6 +6,7 @@ package com.example.intellireview_research_paper.ui.screens.category
 import BottomNavBar
 import android.R.attr.description
 import android.R.attr.text
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -28,6 +29,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -36,6 +38,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -50,6 +53,8 @@ import com.example.intellireview_research_paper.viewmodel.CategoryViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+
 
 @Composable
 fun TopCreateCategoryImage() {
@@ -77,12 +82,22 @@ fun TopCreateCategoryImage() {
 @Composable
 fun CreateCategoryScreen(
     onCreateCategory: (String, String) -> Unit = { _, _ -> },
+    navController: NavController,
     viewModel: CategoryViewModel = viewModel()
 ) {
-    var categoryName by remember { mutableStateOf("") }
+    var name by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
+    val context = LocalContext.current
+    LaunchedEffect(viewModel.categoryCreated) {
+        viewModel.categoryCreated.collect { category ->
+            Toast.makeText(
+                context,
+                "Category '${category.name}' created!",
+                Toast.LENGTH_SHORT
+            ).show()
 
-
+        }
+    }
 
 
         Column(
@@ -110,8 +125,8 @@ fun CreateCategoryScreen(
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
                 OutlinedTextField(
-                    value = categoryName,
-                    onValueChange = { categoryName = it },
+                    value = name,
+                    onValueChange = { name = it },
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(26.dp),
                     colors = OutlinedTextFieldDefaults.colors(
@@ -153,7 +168,9 @@ fun CreateCategoryScreen(
 
             Button(
                 onClick = {
-                    viewModel.createCategory(categoryName, description)
+                    if (name.isNotBlank() && description.isNotBlank()) {
+                        viewModel.createCategory(name, description)
+                    }
                 },
                 modifier = Modifier
                     .width(150.dp)
@@ -178,6 +195,6 @@ fun CreateCategoryScreen(
 @Composable
 fun CreateCategoryScreenPreview() {
     MaterialTheme {
-        CreateCategoryScreen()
+
     }
 }
