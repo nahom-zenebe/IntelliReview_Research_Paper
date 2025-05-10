@@ -1,4 +1,7 @@
 
+import android.os.FileUtils
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -33,18 +36,34 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.intellireview_research_paper.R
+import com.example.intellireview_research_paper.ui.viewmodel.UserViewModel
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Composable
-fun UserProfileScreen() {
+fun UserProfileScreen(viewModel: UserViewModel = viewModel()) {
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background
     ) {
+
+        val context = LocalContext.current
+        val launcher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+            uri?.let {
+                //val file =FileUtils.getFileFromUri(context, it)
+               // file?.let { viewModel.uploadImageToCloudinary(it) }
+            }
+        }
+
+
+
         LazyColumn(
             modifier = Modifier.padding(vertical = 16.dp)
         ) {

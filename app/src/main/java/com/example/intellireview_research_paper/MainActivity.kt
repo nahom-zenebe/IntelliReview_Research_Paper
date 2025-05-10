@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -21,6 +22,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.intellireview_research_paper.data.mapper.UserRepositoryImpl
+import com.example.intellireview_research_paper.data.remote.UserApi
+import com.example.intellireview_research_paper.data.remote.UserApiClient
 import com.example.intellireview_research_paper.ui.components.PostingScreen
 import com.example.intellireview_research_paper.ui.navigation.Screen
 import com.example.intellireview_research_paper.ui.screens.HomeScreen
@@ -38,6 +42,9 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
+object ApiProvider {
+    val userApi: UserApi = UserApiClient.apiService
+}
 
 @Composable
 fun MainScreen() {
@@ -45,6 +52,9 @@ fun MainScreen() {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
 
+    val userRepository = remember {
+        UserRepositoryImpl(ApiProvider.userApi)
+    }
     val screens = listOf(
         Screen.Home,
         Screen.Favourites,
@@ -81,7 +91,9 @@ fun MainScreen() {
                 HomeScreen()
             }
             composable(Screen.Favourites.route) {
-                Bookmark(onMenuClick = {})
+                CreateAccountScreen(navController = navController,userRepository = userRepository)
+               // Bookmark(onMenuClick = {})
+
             }
             composable(Screen.Grid.route) {
                 LoginScreen(navController = navController)
@@ -96,7 +108,7 @@ fun MainScreen() {
             }
 
             composable(Screen.CreateAccountScreen.route) {
-                CreateAccountScreen(navController = navController)
+                CreateAccountScreen(navController = navController,userRepository = userRepository)
             }
 
         }

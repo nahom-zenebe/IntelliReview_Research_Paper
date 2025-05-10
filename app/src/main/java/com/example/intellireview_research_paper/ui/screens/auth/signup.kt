@@ -55,21 +55,12 @@ import com.example.intellireview_research_paper.ui.viewmodel.UserViewModel
 fun CreateAccountScreen(
     onBackClick: () -> Unit = {},
     onLoginClick: () -> Unit = {},
-    navController: NavController
+    navController: NavController,
+    userRepository: UserRepositoryImpl,
+
 
 
 ) {
-    var  name by remember { mutableStateOf("") }
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-    var role by remember { mutableStateOf("") }
-    var country by remember { mutableStateOf("") }
-    var passwordVisible by remember { mutableStateOf(false) }
-
-    val viewModel: UserViewModel = viewModel()
-    val user = viewModel.user
-    val context = LocalContext.current
-
     class UserViewModelFactory(private val userRepository: UserRepositoryImpl) : ViewModelProvider.Factory {
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             if (modelClass.isAssignableFrom(UserViewModel::class.java)) {
@@ -78,6 +69,18 @@ fun CreateAccountScreen(
             throw IllegalArgumentException("Unknown ViewModel class")
         }
     }
+
+    var  name by remember { mutableStateOf("") }
+    var email by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
+    var role by remember { mutableStateOf("") }
+    var country by remember { mutableStateOf("") }
+    var passwordVisible by remember { mutableStateOf(false) }
+    val viewModel: UserViewModel = viewModel(factory = UserViewModelFactory(userRepository))
+    val user = viewModel.user
+    val context = LocalContext.current
+
+
 
 
     LaunchedEffect(user) {
@@ -194,7 +197,9 @@ fun CreateAccountScreen(
         LabeledField("Country", country, onValueChange = { country = it })
 
         Button(
-            onClick = { /* Handle continue */ },
+            onClick = {
+                viewModel.signup(name, email, password, country, role)
+            },
             modifier = Modifier
                 .fillMaxWidth(0.6f)
                 .height(48.dp),

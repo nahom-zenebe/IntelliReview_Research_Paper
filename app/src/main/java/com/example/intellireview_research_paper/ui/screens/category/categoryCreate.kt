@@ -56,7 +56,7 @@ fun TopCreateCategoryImage() {
     Box(modifier = Modifier.fillMaxWidth()) {
         Image(
             painter = painterResource(id = R.drawable.welcome_page_cropedbg),
-            contentDescription = "TopCreateCatagoryImage",
+            contentDescription = "TopCreateCategoryImage",
             contentScale = ContentScale.Crop,  // Add this to properly scale the image
             modifier = Modifier
                 .fillMaxWidth()

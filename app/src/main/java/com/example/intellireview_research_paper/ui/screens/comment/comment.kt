@@ -1,6 +1,7 @@
 package com.example.intellireview_research_paper.ui.screens
 
 //import com.example.Intellireview.HomeTopBar
+import BottomNavBar
 import com.example.intellireview_research_paper.ui.components.ResearchPaperCardNorating
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -21,7 +22,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.DrawerValue
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ModalNavigationDrawer
@@ -49,11 +49,10 @@ import androidx.navigation.NavHostController
 import com.example.intellireview_research_paper.R
 import com.example.intellireview_research_paper.ui.components.DrawerContent
 import com.example.intellireview_research_paper.ui.components.HomeTopBar
-import com.example.intellireview_research_paper.ui.components.ResearchPaperCardNorating
 import kotlinx.coroutines.launch
 
 
-@OptIn(ExperimentalMaterial3Api::class)
+
 @Composable
 fun CommentingPage(
     navController: NavHostController,

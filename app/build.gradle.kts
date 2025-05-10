@@ -58,6 +58,10 @@ dependencies {
     implementation("androidx.navigation:navigation-compose:2.8.9")
     implementation ("com.squareup.retrofit2:converter-gson:2.9.0")
     implementation ("com.squareup.okhttp3:logging-interceptor:5.0.0-alpha.11")
+// add image picker dev
+    implementation("com.squareup.okhttp3:okhttp:4.9.3") // for uploading to Cloudinary
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.1")
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
