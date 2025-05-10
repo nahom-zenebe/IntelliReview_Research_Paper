@@ -11,4 +11,13 @@ Content-Type: application/json
 }
 
 ###
-GET http://localhost:3500/api/paper/viewPapers
+Post http://localhost:3500/api/auth/signup
+Content-Type: application/json
+
+{
+  "name": "Abe",
+  "email": "abel.tefcom",
+  "password": "securePassword123",
+  "country": "Ethiopia",
+  "role": "admin",
+}

@@ -1,26 +1,24 @@
+const mongoose = require("mongoose");
 
-const mongoose=require("mongoose")
-
-const UserSchema= new mongoose.Schema({
-
-    name:{
-        type:String,
-        require:true
+const UserSchema = new mongoose.Schema(
+  {
+    name: {
+      type: String,
+      required: true, // corrected `require` to `required`
     },
     email: {
       type: String,
-      require: true,
+      required: true, // corrected `require` to `required`
       unique: true,
     },
     password: {
       type: String,
-      require: true,
+      required: true, // corrected `require` to `required`
     },
-    country:{
-      type:String,
-      required:true
+    country: {
+      type: String,
+      required: true, // corrected `require` to `required`
     },
-
     role: {
       type: String,
       enum: ["admin", "user", "guest"],
@@ -28,8 +26,13 @@ const UserSchema= new mongoose.Schema({
     },
     ProfilePic: {
       type: String,
+      default: "", // Set default value to an empty string or null
     },
     createdAt: {
+      type: Date,
+      default: Date.now,
+    },
+    updatedAt: {
       type: Date,
       default: Date.now,
     },

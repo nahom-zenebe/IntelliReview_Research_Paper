@@ -1,11 +1,13 @@
 package com.example.intellireview_research_paper.data.mapper
 
+import UserRepository
 import com.example.intellireview_research_paper.data.remote.UserApi
 import com.example.intellireview_research_paper.model.usermodel
 
 class UserRepositoryImpl(private val api: UserApi) : UserRepository {
 
-    suspend fun Signup(
+    // Signup method implementation
+    override suspend fun Signup(
         name: String,
         email: String,
         password: String,
@@ -22,28 +24,16 @@ class UserRepositoryImpl(private val api: UserApi) : UserRepository {
         return response.body() ?: throw Exception("Signup failed: ${response.errorBody()?.string()}")
     }
 
-    suspend fun Login(email: String, password: String): usermodel {
+    // Login method implementation
+    override suspend fun Login(
+        email: String,
+        password: String
+    ): usermodel {
         val response = api.login(email, password.toString())
         return response.body() ?: throw Exception("Login failed: ${response.errorBody()?.string()}")
     }
 
-    override suspend fun Signup(
-        name: String,
-        email: String,
-        password: Number,
-        country: String,
-        role: String
-    ): usermodel {
-        TODO("Not yet implemented")
-    }
-
-    override suspend fun Login(
-        email: String,
-        password: Number
-    ): usermodel {
-        TODO("Not yet implemented")
-    }
-
+    // Logout method implementation
     override suspend fun Logout() {
         val response = api.logout()
         if (!response.isSuccessful) {
@@ -51,6 +41,7 @@ class UserRepositoryImpl(private val api: UserApi) : UserRepository {
         }
     }
 
+    // Profile update method implementation
     override suspend fun updateprofile(ProfilePic: String): usermodel {
         val response = api.updateProfile(ProfilePic)
         return response.body() ?: throw Exception("Update failed: ${response.errorBody()?.string()}")

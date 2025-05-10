@@ -48,7 +48,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.intellireview_research_paper.data.mapper.UserRepositoryImpl
-import com.example.intellireview_research_paper.ui.viewmodel.UserViewModel
+
 
 
 @Composable
@@ -198,6 +198,11 @@ fun CreateAccountScreen(
 
         Button(
             onClick = {
+                if (name.isBlank() || email.isBlank() || password.isBlank() || country.isBlank() || role.isBlank()) {
+                    Toast.makeText(context, "Please fill in all fields", Toast.LENGTH_SHORT).show()
+                    return@Button
+                }
+                println("Signup button clicked")
                 viewModel.signup(name, email, password, country, role)
             },
             modifier = Modifier

@@ -1,6 +1,3 @@
-package com.example.intellireview_research_paper.ui.viewmodel
-
-
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -8,30 +5,18 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.intellireview_research_paper.data.mapper.UserRepositoryImpl
 import com.example.intellireview_research_paper.model.usermodel
-import kotlinx.coroutines.launch
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.asRequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONObject
 import java.io.File
-
 
 class UserViewModel(private val userRepository: UserRepositoryImpl) : ViewModel() {
     private val _profileImageUrl = MutableStateFlow<String?>(null)
@@ -48,30 +33,67 @@ class UserViewModel(private val userRepository: UserRepositoryImpl) : ViewModel(
     var errorMessage by mutableStateOf<String?>(null)
         private set
 
-
+    // Signup function
     fun signup(name: String, email: String, password: String, country: String, role: String) {
         isLoading = true
         errorMessage = null
 
         viewModelScope.launch {
             try {
-                user = userRepository.Signup(name, email, password, country, role)
+                println("Attempting signup with: $name, $email, $password, $country, $role")
+
+                // Create the JSON object manually
+                val jsonObject = JSONObject().apply {
+                    put("name", name)
+                    put("email", email)
+                    put("password", password)
+                    put("country", country)
+                    put("role", role)
+                }
+
+                // Convert JSON object to string and then to RequestBody
+                val requestBody = jsonObject.toString().toRequestBody("application/json".toMediaType())
+
+                // Call the repository's signup function with the JSON requestBody
+                user = userRepository.Signup(
+                    name = name,
+                    email = email,
+                    password = password,
+                    country = country,
+                    role = role
+                )
+
+                println("Signup response: $user")
             } catch (e: Exception) {
                 errorMessage = e.localizedMessage
+                println("Signup error: ${e.localizedMessage}")
             } finally {
                 isLoading = false
             }
         }
     }
 
-
+    // Login function
     fun login(email: String, password: String) {
         isLoading = true
         errorMessage = null
 
         viewModelScope.launch {
             try {
-                user = userRepository.Login(email, password)
+                // Create a JSON object for login
+                val jsonObject = JSONObject().apply {
+                    put("email", email)
+                    put("password", password)
+                }
+
+                val requestBody = jsonObject.toString().toRequestBody("application/json".toMediaType())
+
+                // Call the repository's login function
+                user = userRepository.Login(
+                    email = email,
+                    password = password
+                )
+
             } catch (e: Exception) {
                 errorMessage = e.localizedMessage
             } finally {
@@ -80,7 +102,7 @@ class UserViewModel(private val userRepository: UserRepositoryImpl) : ViewModel(
         }
     }
 
-
+    // Logout function
     fun logout() {
         isLoading = true
         errorMessage = null
@@ -97,6 +119,7 @@ class UserViewModel(private val userRepository: UserRepositoryImpl) : ViewModel(
         }
     }
 
+    // Upload image function to Cloudinary
     fun uploadImageToCloudinary(file: File) {
         viewModelScope.launch(Dispatchers.IO) {
             val cloudinaryUrl = "https://api.cloudinary.com/v1_1/<your-cloud-name>/image/upload"
@@ -128,16 +151,14 @@ class UserViewModel(private val userRepository: UserRepositoryImpl) : ViewModel(
         }
     }
 
-
+    // Update profile function
     fun updateProfile(name: String, bio: String) {
         // Handle DB update or API call here
         _status.value = "Profile updated for $name"
     }
 
+    // Clear status
     fun clearStatus() {
         _status.value = null
     }
-
-
-
-    }
+}

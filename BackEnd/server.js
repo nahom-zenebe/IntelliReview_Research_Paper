@@ -7,6 +7,7 @@ const ReviewRouter = require("./router/ReviewRouter");
 const CategoryRouter = require("./router/CategoryRouter");
 const NotificationRouter = require("./router/NotificationRouter");
 const { MongoDBconfig } = require("./utils/mongoconfig");
+const bodyParser = require("body-parser");
 const cors = require("cors");
 const app = express();
 
@@ -18,6 +19,9 @@ app.use("/api/category", CategoryRouter);
 app.use("/notification", NotificationRouter);
 
 const PORT = process.env.PORT || 3003;
+
+app.use(bodyParser.json()); // for parsing application/json
+app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
 
 app.use(
   cors({

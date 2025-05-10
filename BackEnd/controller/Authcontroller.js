@@ -1,31 +1,55 @@
 const User = require("../model/Usermodel");
 const bcrypt = require("bcryptjs");
+const express = require("express");
 const generateToken = require("../utils/Tokengenerator");
+const bodyParser = require("body-parser");
+const app = express();
 const Cloundinary = require("../utils/Cloudinary");
+
+app.use(bodyParser.json()); // for parsing application/json
+app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
 
 module.exports.signup = async (req, res) => {
   try {
-    const { name, email, password, country, ProfilePic, role } = req.body;
+    // Destructure the required fields from req.body
+    const { name, email, password, country, role } = req.body;
+    console.log(name);
+    console.log(email);
+    console.log(password);
+    console.log(country);
+    console.log(role);
 
+    // Check for missing fields
+    if (!name || !email || !password || !country || !role) {
+      return res.status(400).json({ error: "All fields are required" });
+    }
+
+    // Check if the user already exists
     const duplicatedUser = await User.findOne({ email });
     if (duplicatedUser) {
       return res.status(400).json({ error: "User already exists" });
     }
 
+    // Hash the password
     const hashedpassword = await bcrypt.hash(password, 10);
 
+    // Create a new user
     const newUser = new User({
       name,
       email,
       country,
       password: hashedpassword,
-      ProfilePic: "",
-      role,
+      role, // Role can be 'user', 'admin', or 'guest'
+      ProfilePic: "", // Default ProfilePic is empty
     });
 
+    // Save the user to the database
     const savedUser = await newUser.save();
+
+    // Generate a token for the new user (assuming generateToken is defined elsewhere)
     const token = await generateToken(savedUser, res);
 
+    // Send a response back to the client
     res.status(201).json({
       message: "Signup successful",
       savedUser: {
