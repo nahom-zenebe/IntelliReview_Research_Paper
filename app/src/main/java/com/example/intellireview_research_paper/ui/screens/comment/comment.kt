@@ -1,6 +1,7 @@
 package com.example.intellireview_research_paper.ui.screens
 
 //import com.example.Intellireview.HomeTopBar
+import BottomNavBar
 import com.example.intellireview_research_paper.ui.components.ResearchPaperCardNorating
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
