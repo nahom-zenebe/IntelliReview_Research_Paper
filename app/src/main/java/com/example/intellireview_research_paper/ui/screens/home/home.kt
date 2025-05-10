@@ -4,27 +4,40 @@ package com.example.intellireview_research_paper.ui.screens
 
 import FilterSortRow
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.example.intellireview_research_paper.R
+import com.example.intellireview_research_paper.data.repository.PaperRepositoryImpl
+import com.example.intellireview_research_paper.model.paperModel
 import com.example.intellireview_research_paper.ui.components.DrawerContent
 import com.example.intellireview_research_paper.ui.components.HomeTopBar
 import com.example.intellireview_research_paper.ui.components.ResearchPaperCard
@@ -32,45 +45,48 @@ import com.example.intellireview_research_paper.ui.components.SearchBar
 import kotlinx.coroutines.launch
 
 @Composable
-fun HomeScreen() {
+fun HomeScreen(
+    navController: NavController
+) {
+    // Search and filter state
     var searchQuery by remember { mutableStateOf("") }
     var selectedFilter by remember { mutableStateOf("All") }
     var selectedSort by remember { mutableStateOf("Name") }
 
+    // Drawer state
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val coroutineScope = rememberCoroutineScope()
 
-    val researchPapers = listOf(
-        Triple("AI in Healthcare", R.drawable.research_paper, 4.5),
-        Triple("Blockchain Security", R.drawable.research_paper, 4.2),
-        Triple("Quantum Computing 101", R.drawable.research_paper, 4.7)
-    )
+    // Repository
+    val repo = remember { PaperRepositoryImpl() }
+
+    // Load papers from backend
+    val papersState = produceState<List<paperModel>?>(initialValue = null) {
+        value = try {
+            repo.getPapers()
+        } catch (e: Exception) {
+            e.printStackTrace()
+            emptyList()
+        }
+    }
 
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
             DrawerContent(
-                onItemSelected = { label ->
-                    // Handle drawer item clicks here
-                },
-                onLogout = {
-                    // Handle logout here
-                }
+                onItemSelected = { /* handle drawer clicks */ },
+                onLogout = { /* handle logout */ }
             )
         }
     ) {
         Scaffold(
             topBar = {
                 HomeTopBar(
-                    onMenuClick = {
-                        coroutineScope.launch { drawerState.open() }
-                    },
-                    inputname = "IntelliReview"  // was TODO(), now a safe default
+                    onMenuClick = { coroutineScope.launch { drawerState.open() } },
+                    inputname = "IntelliReview"
                 )
             },
-            bottomBar = {
-                /* no-op; bottom nav is in MainActivity */
-            }
+            bottomBar = { /* bottom nav handled in MainActivity */ }
         ) { innerPadding ->
             Column(
                 modifier = Modifier
@@ -80,10 +96,10 @@ fun HomeScreen() {
             ) {
                 SearchBar(
                     query = searchQuery,
-                    onQueryChanged = { newText -> searchQuery = newText }
+                    onQueryChanged = { searchQuery = it }
                 )
 
-                Spacer(modifier = Modifier.height(12.dp))
+                Spacer(Modifier.height(12.dp))
 
                 FilterSortRow(
                     selectedFilter = selectedFilter,
@@ -92,18 +108,50 @@ fun HomeScreen() {
                     onSortSelected = { selectedSort = it }
                 )
 
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(Modifier.height(8.dp))
 
-                LazyColumn(
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    items(researchPapers) { (title, imageRes, rating) ->
-                        ResearchPaperCard(
-                            title = title,
-                            imageRes = imageRes,
-                            rating = rating
-                        )
+                when (val papers = papersState.value) {
+                    null -> {
+                        Box(
+                            Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            CircularProgressIndicator()
+                        }
+                    }
+                    else -> {
+                        LazyColumn(
+                            verticalArrangement = Arrangement.spacedBy(8.dp),
+                            modifier = Modifier.fillMaxSize()
+                        ) {
+                            items(
+                                items = papers,
+                                key = { it.paperId ?: it.hashCode().toString() }
+                            ) { paper ->
+                                Box(
+                                    Modifier
+                                        .fillMaxWidth()
+                                ) {
+                                    ResearchPaperCard(
+                                        title = paper.title.orEmpty(),
+                                        imageRes = R.drawable.research_paper,
+                                        rating = paper.averageRating
+                                    )
+                                    IconButton(
+                                        onClick = {
+                                            navController.navigate("posting?paperId=${paper.paperId}")
+                                        },
+                                        modifier = Modifier.align(Alignment.TopEnd)
+                                    ) {
+                                        Icon(
+                                            Icons.Filled.Edit,
+                                            contentDescription = "Edit",
+                                            tint = MaterialTheme.colorScheme.primary
+                                        )
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }

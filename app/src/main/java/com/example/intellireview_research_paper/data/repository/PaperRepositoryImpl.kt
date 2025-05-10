@@ -1,20 +1,17 @@
-
-package com.example.intellireview_research_paper.data
+package com.example.intellireview_research_paper.data.repository
 
 import com.example.intellireview_research_paper.api.PaperApiClient
 import com.example.intellireview_research_paper.data.mapper.PaperRepository
 import com.example.intellireview_research_paper.model.paperModel
+import com.example.intellireview_research_paper.util.toPlainRequestBody
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
-import toPlainRequestBody
 import java.io.File
 
 class PaperRepositoryImpl : PaperRepository {
-    override suspend fun getPapers(): List<paperModel> {
-        val response = PaperApiClient.apiService.getPapers()
-        return response.body() ?: emptyList()
-    }
+    override suspend fun getPapers(): List<paperModel> =
+        PaperApiClient.apiService.getPapers().body() ?: emptyList()
 
     override suspend fun createPaper(
         title: String,
@@ -27,24 +24,24 @@ class PaperRepositoryImpl : PaperRepository {
         reviewCount: Int
     ): paperModel {
         val file = File(pdfUrl)
-        val pdfRequest = file.asRequestBody("application/pdf".toMediaTypeOrNull())
-        val pdfPart = MultipartBody.Part.createFormData("pdf", file.name, pdfRequest)
-
-        val response = PaperApiClient.apiService.createPaper(
+        val part = MultipartBody.Part.createFormData(
+            "pdf",
+            file.name,
+            file.asRequestBody("application/pdf".toMediaTypeOrNull())
+        )
+        val resp = PaperApiClient.apiService.createPaper(
             title.toPlainRequestBody(),
             authors.toPlainRequestBody(),
             year.toString().toPlainRequestBody(),
             uploadedBy.toPlainRequestBody(),
             category.toPlainRequestBody(),
-            pdfPart
+            part
         )
-        return response.body()!!
+        return resp.body()!!
     }
 
-    override suspend fun searchPaper(inputData: String): List<paperModel> {
-        val response = PaperApiClient.apiService.searchPaper(inputData)
-        return response.body() ?: emptyList()
-    }
+    override suspend fun searchPaper(inputData: String): List<paperModel> =
+        PaperApiClient.apiService.searchPaper(inputData).body() ?: emptyList()
 
     override suspend fun deletePaper(paperId: String) {
         PaperApiClient.apiService.deletePaper(paperId)
@@ -62,18 +59,20 @@ class PaperRepositoryImpl : PaperRepository {
         reviewCount: Int
     ): paperModel {
         val file = File(pdfUrl)
-        val pdfRequest = file.asRequestBody("application/pdf".toMediaTypeOrNull())
-        val pdfPart = MultipartBody.Part.createFormData("pdf", file.name, pdfRequest)
-
-        val response = PaperApiClient.apiService.updatePaper(
+        val part = MultipartBody.Part.createFormData(
+            "pdf",
+            file.name,
+            file.asRequestBody("application/pdf".toMediaTypeOrNull())
+        )
+        val resp = PaperApiClient.apiService.updatePaper(
             paperId,
             title.toPlainRequestBody(),
             authors.toPlainRequestBody(),
             year.toString().toPlainRequestBody(),
             uploadedBy.toPlainRequestBody(),
             category.toPlainRequestBody(),
-            pdfPart
+            part
         )
-        return response.body()!!
+        return resp.body()!!
     }
 }

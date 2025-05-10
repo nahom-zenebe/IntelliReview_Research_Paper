@@ -15,34 +15,34 @@ import retrofit2.http.Query
 
 interface PaperApi {
     @Multipart
-    @POST("/upload")
+    @POST("upload")
     suspend fun createPaper(
-        @Part("title") title: RequestBody,
-        @Part("authors") authors: RequestBody,
-        @Part("year") year: RequestBody,
+        @Part("title")      title:      RequestBody,
+        @Part("authors")    authors:    RequestBody,
+        @Part("year")       year:       RequestBody,
         @Part("uploadedBy") uploadedBy: RequestBody,
-        @Part("category") category: RequestBody,
-        @Part pdf: MultipartBody.Part
+        @Part("category")   category:   RequestBody,
+        @Part               pdf:        MultipartBody.Part
     ): Response<paperModel>
 
     @Multipart
-    @PUT("/update/{id}")
+    @PUT("update/{id}")
     suspend fun updatePaper(
-        @Path("id") paperId: String,
-        @Part("title") title: RequestBody,
-        @Part("authors") authors: RequestBody,
-        @Part("year") year: RequestBody,
+        @Path("id")         paperId:    String,
+        @Part("title")      title:      RequestBody,
+        @Part("authors")    authors:    RequestBody,
+        @Part("year")       year:       RequestBody,
         @Part("uploadedBy") uploadedBy: RequestBody,
-        @Part("category") category: RequestBody,
-        @Part pdf: MultipartBody.Part?
+        @Part("category")   category:   RequestBody,
+        @Part               pdf:        MultipartBody.Part?
     ): Response<paperModel>
 
-    @GET("/getpapers")
+    @GET("viewPapers")
     suspend fun getPapers(): Response<List<paperModel>>
 
-    @GET("/searchpapers")
+    @GET("searchpapers")
     suspend fun searchPaper(@Query("inputdata") inputData: String): Response<List<paperModel>>
 
-    @DELETE("/delete/{id}")
+    @DELETE("delete/{id}")
     suspend fun deletePaper(@Path("id") paperId: String): Response<Unit>
 }

@@ -1,20 +1,27 @@
 const Paper = require("../model/Papermodel");
-
 // Upload Paper Function
 const uploadPaper = async (req, res) => {
   try {
-    const { title, authors, year, uploadedBy, catagory } = req.body;
+    const { title, authors, year, uploadedBy = "", category = "" } = req.body;
 
-    // Safely handle pdfUrl in case no file was uploaded
-    const pdfUrl = req.file ? req.file.path : "";
+    // Validate required fields
+    if (!title || !authors) {
+      return res.status(400).json({ error: "Title and authors are required." });
+    }
+
+    if (!req.file || !req.file.path) {
+      return res.status(400).json({ error: "PDF file is required." });
+    }
+
+    const pdfUrl = req.file.path; // Cloudinary URL
 
     const newPaper = new Paper({
       title,
       authors: Array.isArray(authors) ? authors : [authors],
-      year,
+      year: year ? Number(year) : 0,
       pdfUrl,
       uploadedBy,
-      catagory,
+      category,
     });
 
     const savedPaper = await newPaper.save();
@@ -28,7 +35,6 @@ const uploadPaper = async (req, res) => {
     res.status(500).json({ error: "Failed to upload paper: " + error.message });
   }
 };
-
 // Update Paper Function
 const updatePaper = async (req, res) => {
   try {
