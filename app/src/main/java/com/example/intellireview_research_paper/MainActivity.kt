@@ -32,6 +32,7 @@ import com.example.intellireview_research_paper.data.repository.CategoryReposito
 import com.example.intellireview_research_paper.model.paperModel
 import com.example.intellireview_research_paper.ui.components.PostingScreen
 import com.example.intellireview_research_paper.ui.navigation.Screen
+import com.example.intellireview_research_paper.ui.screens.CategoryView
 import com.example.intellireview_research_paper.ui.screens.HomeScreen
 import com.example.intellireview_research_paper.ui.screens.LoginScreen
 import com.example.intellireview_research_paper.ui.screens.category.CreateCategoryScreen
@@ -114,8 +115,12 @@ fun MainScreen() {
                 )
 
             }
+//            composable(Screen.Grid.route) {
+//                CreateAccountScreen(navController = navController,userRepository = userRepository)
+//
+//            }
             composable(Screen.Grid.route) {
-                CreateAccountScreen(navController = navController,userRepository = userRepository)
+                CategoryView(navController = navController)
 
             }
 
