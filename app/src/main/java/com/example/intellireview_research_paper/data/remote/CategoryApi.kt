@@ -12,23 +12,23 @@ import java.util.concurrent.TimeUnit
 
 interface CategoryApi {
 
-    @GET("/getcategories")
+    @GET("category/getcategories")
     suspend fun getCategories(): Response<List<categorymodel>>
 
     @FormUrlEncoded
-    @POST("/createcategories")
+    @POST("category/createCategory")
     suspend fun createCategory(
         @Field("name") name: String,
         @Field("description") description: String
     ): Response<categorymodel>
 
     @FormUrlEncoded
-    @POST("/searchcategories/search")
+    @POST("/category/searchcategories/search")
     suspend fun searchCategory(
         @Field("inputdata") inputData: String
     ): Response<List<categorymodel>>
 
-    @DELETE("/deletecategories/{id}")
+    @DELETE("/category/deletecategories/{id}")
     suspend fun deleteCategory(
         @Path("id") categoryId: String
     ): Response<Void>
@@ -50,11 +50,11 @@ object CategoryApiClient {
 
     private val retrofit = Retrofit.Builder()
         .baseUrl(BASE_URL)
-        .client(createOkHttpClient())  // Adding OkHttpClient to handle SSL and timeout issues
+        .client(createOkHttpClient())
         .addConverterFactory(GsonConverterFactory.create())
         .build()
 
-    val apiService: CategoryRepository = retrofit.create(CategoryRepository::class.java)
+    val apiService: CategoryApi = retrofit.create(CategoryApi::class.java)
 
     private fun createOkHttpClient(): OkHttpClient {
         return OkHttpClient.Builder()
@@ -64,10 +64,3 @@ object CategoryApiClient {
             .build()
     }
 }
-
-
-
-
-
-
-

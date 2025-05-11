@@ -49,6 +49,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Composable
 fun UserProfileScreen(viewModel: UserViewModel = viewModel()) {
+    val user = viewModel.user
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background
@@ -85,7 +86,8 @@ fun UserProfileScreen(viewModel: UserViewModel = viewModel()) {
 }
 
 @Composable
-fun UserHeaderSection() {
+fun UserHeaderSection(viewModel: UserViewModel = viewModel()) {
+    val user = viewModel.user
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -110,13 +112,13 @@ fun UserHeaderSection() {
         Spacer(modifier = Modifier.height(16.dp))
 
         Text(
-            text = "Chaltu Nakew",
+            text = user?.name ?: "Guest User",
             fontSize = 20.sp,
             fontWeight = FontWeight.Bold,
             color = Color.White
         )
         Text(
-            text = "Chaltuyegondar@gmail.com",
+            text = user?.email ?: "No email",
             fontSize = 14.sp,
             color = Color.White.copy(alpha = 0.8f)
         )

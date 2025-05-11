@@ -23,8 +23,12 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.intellireview_research_paper.data.mapper.CategoryRepository
 import com.example.intellireview_research_paper.data.mapper.UserRepositoryImpl
+import com.example.intellireview_research_paper.data.remote.CategoryApi
+import com.example.intellireview_research_paper.data.remote.CategoryApiClient
 import com.example.intellireview_research_paper.data.remote.UserApi
+import com.example.intellireview_research_paper.data.repository.CategoryRepositoryImpl
 import com.example.intellireview_research_paper.model.paperModel
 import com.example.intellireview_research_paper.ui.components.PostingScreen
 import com.example.intellireview_research_paper.ui.navigation.Screen
@@ -49,6 +53,10 @@ object ApiProvider {
     val userApi: UserApi = UserApiClient.apiService
 }
 
+object ApiProvidercategory {
+    val categoryApi: CategoryApi = CategoryApiClient.apiService
+}
+
 @Composable
 fun MainScreen() {
     val navController = rememberNavController()
@@ -58,13 +66,17 @@ fun MainScreen() {
     val userRepository = remember {
         UserRepositoryImpl(ApiProvider.userApi)
     }
+    val categoryRepository= remember {
+        CategoryRepositoryImpl(ApiProvidercategory.categoryApi)
+    }
     val screens = listOf(
         Screen.Home,
         Screen.Favourites,
         Screen.Grid,
+        Screen.createCategory,
         Screen.Messages,
         Screen.Profile,
-        Screen.createCategory
+
     )
 
     val selectedIndex = screens.indexOfFirst { it.route == currentRoute }
@@ -124,6 +136,7 @@ fun MainScreen() {
 
                 CreateCategoryScreen(
                     navController = navController,
+                    repository = categoryRepository
                 )
 
             }

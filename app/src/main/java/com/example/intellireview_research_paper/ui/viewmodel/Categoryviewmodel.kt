@@ -2,7 +2,7 @@ package com.example.intellireview_research_paper.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.intellireview_research_paper.data.repository.CategoryRepositoryImpl
+import com.example.intellireview_research_paper.data.mapper.CategoryRepository
 import com.example.intellireview_research_paper.model.categorymodel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -15,7 +15,7 @@ sealed class CategoryUiState {
 }
 
 class CategoryViewModel(
-    private val repository: CategoryRepositoryImpl
+    private val repository: CategoryRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<CategoryUiState>(CategoryUiState.Idle)

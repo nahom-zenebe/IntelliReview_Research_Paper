@@ -3,23 +3,15 @@ package com.example.intellireview_research_paper.ui.screens.category
 
 //import androidx.compose.ui.graphics.Color
 
-import BottomNavBar
-import android.R.attr.description
-import android.R.attr.text
 import android.widget.Toast
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
@@ -39,21 +31,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavHostController
 import com.example.intellireview_research_paper.R
-import com.example.intellireview_research_paper.ui.theme.White
 import com.example.intellireview_research_paper.viewmodel.CategoryViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.intellireview_research_paper.data.mapper.CategoryRepository
 
 
 @Composable
@@ -79,15 +68,30 @@ fun TopCreateCategoryImage() {
     }
 }
 
+class CategoryViewModelFactory(
+    private val repository: CategoryRepository
+) : ViewModelProvider.Factory {
+
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        if (modelClass.isAssignableFrom(CategoryViewModel::class.java)) {
+            return CategoryViewModel(repository) as T
+        }
+        throw IllegalArgumentException("Unknown ViewModel class")
+    }
+}
+
 @Composable
 fun CreateCategoryScreen(
-    onCreateCategory: (String, String) -> Unit = { _, _ -> },
+
     navController: NavController,
-    viewModel: CategoryViewModel = viewModel()
+    repository: CategoryRepository
 ) {
     var name by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
     val context = LocalContext.current
+    val viewModel: CategoryViewModel = viewModel(
+        factory = CategoryViewModelFactory(repository)
+    )
     LaunchedEffect(viewModel.categoryCreated) {
         viewModel.categoryCreated.collect { category ->
             Toast.makeText(
@@ -95,10 +99,8 @@ fun CreateCategoryScreen(
                 "Category '${category.name}' created!",
                 Toast.LENGTH_SHORT
             ).show()
-
         }
     }
-
 
         Column(
             modifier = Modifier
