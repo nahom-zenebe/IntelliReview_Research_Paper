@@ -8,5 +8,6 @@ sealed class Screen(val route: String) {
     object Profile : Screen("profile")
     object  CreateAccountScreen:Screen("signup")
     object  createCategory:Screen("createCategory")
+    object  CreateNotification:Screen("createnotification")
 
 }

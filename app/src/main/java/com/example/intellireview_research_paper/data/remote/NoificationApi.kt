@@ -10,11 +10,11 @@ import java.util.concurrent.TimeUnit
 
 interface NotificationApi {
 
-    @GET("/getnotifications")
+    @GET("notification/getnotifications")
     suspend fun getNotifications(): Response<List<notificationmodel>>
 
     @FormUrlEncoded
-    @POST("/createnotifications")
+    @POST("notification/notify-new-paper")
     suspend fun createNotification(
         @Field("title") title: String,
         @Field("message") message: String
@@ -31,7 +31,6 @@ interface NotificationApi {
 
 
 object NotificationApiClient {
-
     private const val BASE_URL = "http://10.0.2.2:3500/api/"
 
     private val retrofit = Retrofit.Builder()
@@ -40,8 +39,7 @@ object NotificationApiClient {
         .addConverterFactory(GsonConverterFactory.create())
         .build()
 
-    val apiService:NotificationApi = retrofit.create(NotificationApi::class.java)
-
+    val apiService: NotificationApi = retrofit.create(NotificationApi::class.java)
 
     private fun createOkHttpClient(): OkHttpClient {
         return OkHttpClient.Builder()
