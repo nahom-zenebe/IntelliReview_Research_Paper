@@ -31,6 +31,9 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -42,14 +45,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.intellireview_research_paper.R
+import androidx.compose.runtime.collectAsState
 
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
+
+
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.intellireview_research_paper.model.usermodel
 
 @Composable
 fun UserProfileScreen(viewModel: UserViewModel = viewModel()) {
-    val user = viewModel.user
+    val user by viewModel.userInfo.collectAsState()
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background
@@ -69,7 +74,7 @@ fun UserProfileScreen(viewModel: UserViewModel = viewModel()) {
             modifier = Modifier.padding(vertical = 16.dp)
         ) {
             item {
-                UserHeaderSection()
+                UserHeaderSection(user = user)
                 Spacer(modifier = Modifier.height(24.dp))
                 UserStatsSection()
                 Spacer(modifier = Modifier.height(24.dp))
@@ -85,9 +90,11 @@ fun UserProfileScreen(viewModel: UserViewModel = viewModel()) {
     }
 }
 
+
+
 @Composable
-fun UserHeaderSection(viewModel: UserViewModel = viewModel()) {
-    val user = viewModel.user
+fun UserHeaderSection(user: usermodel?) {
+
     Column(
         modifier = Modifier
             .fillMaxWidth()

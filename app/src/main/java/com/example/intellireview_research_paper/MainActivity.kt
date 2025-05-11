@@ -6,6 +6,8 @@ import BottomNavBar
 import CreateAccountScreen
 import NotificationScreen
 import UserApiClient
+import UserProfileScreen
+import UserViewModel
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -65,6 +67,7 @@ object ApiProviderNotification {
 
 @Composable
 fun MainScreen() {
+
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
@@ -72,6 +75,7 @@ fun MainScreen() {
     val userRepository = remember {
         UserRepositoryImpl(ApiProvider.userApi)
     }
+    val userViewModel = UserViewModel(userRepository)
     val categoryRepository= remember {
         CategoryRepositoryImpl(ApiProvidercategory.categoryApi)
     }
@@ -82,10 +86,11 @@ fun MainScreen() {
         Screen.Home,
         Screen.Favourites,
         Screen.Grid,
+        Screen.Profile,
         Screen.CreateNotification,
         Screen.createCategory,
         Screen.Messages,
-        Screen.Profile,
+
 
 
     )
@@ -126,12 +131,10 @@ fun MainScreen() {
 
             }
 //            composable(Screen.Grid.route) {
-//                CreateAccountScreen(navController = navController,userRepository = userRepository)
-//
+//               CreateAccountScreen(navController = navController,userRepository = userRepository)
 //            }
             composable(Screen.Grid.route) {
-                CategoryView(navController = navController)
-
+              CategoryView(navController = navController,repository = categoryRepository)
             }
 
             composable(Screen.Messages.route) {
@@ -141,11 +144,12 @@ fun MainScreen() {
             }
 
             composable(Screen.Profile.route) {
-                                LoginScreen(
-                                    navController = navController,
-                                    userRepository = userRepository,
-                                    onBackClick = {}
-                                )
+                UserProfileScreen(viewModel = userViewModel)
+//                                LoginScreen(
+//                                    navController = navController,
+//                                    userRepository = userRepository,
+//                                    onBackClick = {}
+//                                )
             }
             composable(Screen.createCategory.route) {
 

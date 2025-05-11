@@ -18,7 +18,7 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONObject
 import java.io.File
 
-class UserViewModel(private val userRepository: UserRepositoryImpl) : ViewModel() {
+class UserViewModel(private val userRepository: UserRepository) : ViewModel() {
     private val _profileImageUrl = MutableStateFlow<String?>(null)
     val profileImageUrl: StateFlow<String?> = _profileImageUrl
 
@@ -26,6 +26,10 @@ class UserViewModel(private val userRepository: UserRepositoryImpl) : ViewModel(
     val status: StateFlow<String?> = _status
     var user by mutableStateOf<usermodel?>(null)
         private set
+
+    private val _user = MutableStateFlow<usermodel?>(null)
+    val userInfo: StateFlow<usermodel?> get() = _user
+
 
     var isLoading by mutableStateOf(false)
         private set
@@ -62,7 +66,7 @@ class UserViewModel(private val userRepository: UserRepositoryImpl) : ViewModel(
                     country = country,
                     role = role
                 )
-
+                _user.value = user
                 println("Signup response: $user")
             } catch (e: Exception) {
                 errorMessage = e.localizedMessage
@@ -93,6 +97,7 @@ class UserViewModel(private val userRepository: UserRepositoryImpl) : ViewModel(
                     email = email,
                     password = password
                 )
+                _user.value = user
 
             } catch (e: Exception) {
                 errorMessage = e.localizedMessage

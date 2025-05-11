@@ -27,8 +27,11 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
@@ -39,25 +42,49 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.intellireview_research_paper.ui.viewmodel.BookmarkViewModel
 import androidx.navigation.NavController
 import com.example.intellireview_research_paper.R
+import com.example.intellireview_research_paper.data.mapper.CategoryRepository
 import com.example.intellireview_research_paper.data.repository.PaperRepositoryImpl
 import com.example.intellireview_research_paper.model.paperModel
 import com.example.intellireview_research_paper.ui.components.DrawerContent
 import com.example.intellireview_research_paper.ui.components.HomeTopBar
 import com.example.intellireview_research_paper.ui.components.ResearchPaperCard
 import com.example.intellireview_research_paper.ui.components.SearchBar
+import com.example.intellireview_research_paper.ui.screens.category.CategoryViewModelFactory
+import com.example.intellireview_research_paper.viewmodel.CategoryUiState
+import com.example.intellireview_research_paper.viewmodel.CategoryViewModel
 import kotlinx.coroutines.launch
+
+
+class CategoryViewModelFactory(
+    private val repository: CategoryRepository
+) : ViewModelProvider.Factory {
+
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        if (modelClass.isAssignableFrom(CategoryViewModel::class.java)) {
+            return CategoryViewModel(repository) as T
+        }
+        throw IllegalArgumentException("Unknown ViewModel class")
+    }
+}
 
 @Composable
 fun CategoryView(
-    navController: NavController
+    navController: NavController,
+    repository: CategoryRepository
 ) {
     // Search and filter state
     var searchQuery by remember { mutableStateOf("") }
-
+    val categoryViewModel: CategoryViewModel = viewModel(factory = CategoryViewModelFactory(repository))
+    val uiState by categoryViewModel.uiState.collectAsState()
+    LaunchedEffect(Unit) {
+        categoryViewModel.fetchCategories()
+    }
 
     // Drawer state
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
@@ -105,25 +132,36 @@ fun CategoryView(
 
                 Spacer(Modifier.height(8.dp))
 
+                when (val state = uiState) {
+                    is CategoryUiState.Loading -> {
+                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                            CircularProgressIndicator()
+                        }
+                    }
 
-//              here is the category card
 
+                    is CategoryUiState.Success -> {
+                        LazyColumn {
+                            items(state.categories) { category ->
+                                CategoryViewCard(
+                                    text = category.name,
+                                    onEditClick = {
+                                        // TODO: Open edit dialog or screen
+                                    },
+                                    onDeleteClick = {
+                                        categoryViewModel.deleteCategory(category.categoryId.toString())
+                                    }
+                                )
+                            }
+                        }
+                    }
 
-                CategoryViewCard(
-                    text = "Math",
-                    onEditClick = { /* Handle edit */ },
-                    onDeleteClick = { /* Handle delete */ }
-                )
-                CategoryViewCard(
-                    text = "Ai and Machine larning",
-                    onEditClick = { /* Handle edit */ },
-                    onDeleteClick = { /* Handle delete */ }
-                )
-                CategoryViewCard(
-                    text = "Biology",
-                    onEditClick = { /* Handle edit */ },
-                    onDeleteClick = { /* Handle delete */ }
-                )
-
-            }
-        }}}
+                    else -> {
+                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                            Text(
+                                text = "Error: getting category",
+                                color = MaterialTheme.colorScheme.error
+                            )
+                    }
+                }
+        }}}}}
