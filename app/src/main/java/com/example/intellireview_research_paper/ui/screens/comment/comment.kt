@@ -70,7 +70,7 @@ fun CommentingPage(
         drawerState = drawerState,
         drawerContent = {
             DrawerContent(
-                onItemSelected = { /* handle nav */ },
+                navController = navController,
                 onLogout = { /* handle logout */ }
             )
         }

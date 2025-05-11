@@ -3,7 +3,6 @@ package com.example.intellireview_research_paper
 
 
 import AdminDashboard
-import BookmarkScreen
 import BottomNavBar
 import CreateAccountScreen
 import NotificationScreen
@@ -37,6 +36,7 @@ import com.example.intellireview_research_paper.data.repository.CategoryReposito
 import com.example.intellireview_research_paper.data.repository.NotificationRepositoryImpl
 import com.example.intellireview_research_paper.ui.components.PostingScreen
 import com.example.intellireview_research_paper.ui.navigation.Screen
+import com.example.intellireview_research_paper.ui.screens.BookmarkScreen
 import com.example.intellireview_research_paper.ui.screens.CategoryView
 import com.example.intellireview_research_paper.ui.screens.HomeScreen
 import com.example.intellireview_research_paper.ui.screens.LoginScreen
@@ -128,7 +128,7 @@ fun MainScreen() {
             composable(Screen.Favourites.route) {
 
                 BookmarkScreen(
-                    onMenuClick = { /* Handle menu button click */ },
+                    onLogout = {},
                     navController = navController,
                 )
 
@@ -148,19 +148,20 @@ fun MainScreen() {
             }
 
             composable(Screen.Profile.route) {
-                UserProfileScreen(viewModel = userViewModel)
+//                UserProfileScreen(viewModel = userViewModel)
 //                                LoginScreen(
 //                                    navController = navController,
 //                                    userRepository = userRepository,
 //                                    onBackClick = {}
 //                                )
-            }
-            composable(Screen.createCategory.route) {
-
                 CreateCategoryScreen(
                     navController = navController,
                     repository = categoryRepository
                 )
+            }
+            composable(Screen.createCategory.route) {
+
+
 
             }
             composable(Screen.CreateNotification.route) {

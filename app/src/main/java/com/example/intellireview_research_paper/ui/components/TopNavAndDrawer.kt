@@ -1,9 +1,6 @@
 package com.example.intellireview_research_paper.ui.components
 
-import com.example.intellireview_research_paper.R
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -19,7 +16,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.outlined.BookmarkBorder
+import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.GridView
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Logout
@@ -38,6 +35,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import com.example.intellireview_research_paper.R
+import com.example.intellireview_research_paper.ui.navigation.Screen
 
 @Composable
 fun HomeTopBar(
@@ -80,20 +80,25 @@ fun HomeTopBar(
     }
 }
 
-
-
 @Composable
 fun DrawerContent(
-    onItemSelected: (String) -> Unit,
+    navController: NavController,
     onLogout: () -> Unit
 ) {
+    val items = listOf(
+        "Home" to Screen.Home.route,
+        "Profile" to Screen.Profile.route,
+        "Bookmark" to Screen.Favourites.route,
+        "Create Category" to Screen.createCategory.route,
+        "View Category" to Screen.Grid.route
+    )
+
     Column(
         modifier = Modifier
             .fillMaxHeight()
             .width(280.dp)
     ) {
-
-        // Header
+        // Header with profile, name, and email
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -103,13 +108,13 @@ fun DrawerContent(
             horizontalAlignment = Alignment.Start,
             verticalArrangement = Arrangement.Center
         ) {
-            Image(
+            androidx.compose.foundation.Image(
                 painter = painterResource(id = R.drawable.welcome_screen_container),
                 contentDescription = "Profile",
                 modifier = Modifier
                     .size(80.dp)
                     .clip(CircleShape)
-                    .border(2.dp, Color.White, CircleShape)
+                    .background(Color.White)
             )
 
             Spacer(modifier = Modifier.height(12.dp))
@@ -127,34 +132,35 @@ fun DrawerContent(
             )
         }
 
-
-
-
-
-        // Drawer body
+        // Drawer menu body
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .background(Color(0xFFE8E8ED))
                 .padding(start = 16.dp, top = 24.dp, bottom = 24.dp)
         ) {
-            val items = listOf(
-                "Home" to Icons.Outlined.Home,
-                "Profile" to Icons.Outlined.Person,
-                "Bookmark" to Icons.Outlined.BookmarkBorder,
-                "Create Category" to Icons.Outlined.GridView,
-                "View Category" to Icons.Outlined.GridView
-            )
-
-            items.forEach { (label, icon) ->
+            items.forEach { (label, route) ->
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clickable { onItemSelected(label) }
+                        .clickable {
+                            navController.navigate(route) {
+                                popUpTo(navController.graph.startDestinationId) { saveState = true }
+                                launchSingleTop = true
+                                restoreState = true
+                            }
+                        }
                         .padding(vertical = 16.dp)
-
                 ) {
+                    val icon = when (label) {
+                        "Home" -> Icons.Outlined.Home
+                        "Profile" -> Icons.Outlined.Person
+                        "Bookmark" -> Icons.Outlined.FavoriteBorder
+                        "Create Category", "View Category" -> Icons.Outlined.GridView
+                        else -> Icons.Outlined.Home
+                    }
+
                     Icon(
                         imageVector = icon,
                         contentDescription = label,
@@ -199,7 +205,3 @@ fun DrawerContent(
         }
     }
 }
-
-
-
-
