@@ -1,6 +1,8 @@
 package com.example.intellireview_research_paper
 
 
+
+import AdminDashboard
 import BookmarkScreen
 import BottomNavBar
 import CreateAccountScreen
@@ -37,6 +39,7 @@ import com.example.intellireview_research_paper.ui.screens.LoginScreen
 import com.example.intellireview_research_paper.ui.screens.category.CreateCategoryScreen
 import com.example.intellireview_research_paper.ui.theme.IntelliReview_Research_PaperTheme
 import com.example.intellireview_research_paper.viewmodel.CreatePostViewModel
+
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -122,7 +125,8 @@ fun MainScreen() {
             composable(Screen.Messages.route) {
                 // Provide the ViewModel here:
                 val createPostViewModel: CreatePostViewModel = viewModel()
-                PostingScreen(viewModel = createPostViewModel)
+//              PostingScreen(viewModel = createPostViewModel)
+                AdminDashboard(onMenuClick = {})
             }
 
             composable(Screen.Profile.route) {
