@@ -1,10 +1,11 @@
 package com.example.intellireview_research_paper.data.repository
 
 import com.example.intellireview_research_paper.data.mapper.NotificationRepository
+import com.example.intellireview_research_paper.data.remote.NotificationApi
 import com.example.intellireview_research_paper.data.remote.NotificationApiClient
 import com.example.intellireview_research_paper.model.notificationmodel
 
-class NotificationRepositoryImpl:NotificationRepository {
+class NotificationRepositoryImpl(notificationApi: NotificationApi) :NotificationRepository {
 
     private val  api=NotificationApiClient.apiService
 

@@ -4,6 +4,7 @@ package com.example.intellireview_research_paper
 import BookmarkScreen
 import BottomNavBar
 import CreateAccountScreen
+import NotificationScreen
 import UserApiClient
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -16,20 +17,20 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.key.Key.Companion.Bookmark
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.example.intellireview_research_paper.data.mapper.CategoryRepository
 import com.example.intellireview_research_paper.data.mapper.UserRepositoryImpl
 import com.example.intellireview_research_paper.data.remote.CategoryApi
 import com.example.intellireview_research_paper.data.remote.CategoryApiClient
+import com.example.intellireview_research_paper.data.remote.NotificationApi
+import com.example.intellireview_research_paper.data.remote.NotificationApiClient
 import com.example.intellireview_research_paper.data.remote.UserApi
 import com.example.intellireview_research_paper.data.repository.CategoryRepositoryImpl
-import com.example.intellireview_research_paper.model.paperModel
+import com.example.intellireview_research_paper.data.repository.NotificationRepositoryImpl
 import com.example.intellireview_research_paper.ui.components.PostingScreen
 import com.example.intellireview_research_paper.ui.navigation.Screen
 import com.example.intellireview_research_paper.ui.screens.HomeScreen
@@ -56,6 +57,10 @@ object ApiProvider {
 object ApiProvidercategory {
     val categoryApi: CategoryApi = CategoryApiClient.apiService
 }
+object ApiProviderNotification {
+    val notificationApi: NotificationApi = NotificationApiClient.apiService
+}
+
 
 @Composable
 fun MainScreen() {
@@ -69,13 +74,18 @@ fun MainScreen() {
     val categoryRepository= remember {
         CategoryRepositoryImpl(ApiProvidercategory.categoryApi)
     }
+    val notificationRepository= remember {
+        NotificationRepositoryImpl(ApiProviderNotification.notificationApi)
+    }
     val screens = listOf(
         Screen.Home,
         Screen.Favourites,
         Screen.Grid,
+        Screen.CreateNotification,
         Screen.createCategory,
         Screen.Messages,
         Screen.Profile,
+
 
     )
 
@@ -137,6 +147,14 @@ fun MainScreen() {
                 CreateCategoryScreen(
                     navController = navController,
                     repository = categoryRepository
+                )
+
+            }
+            composable(Screen.CreateNotification.route) {
+
+                NotificationScreen(
+                    navController = navController,
+                    repository = notificationRepository
                 )
 
             }
