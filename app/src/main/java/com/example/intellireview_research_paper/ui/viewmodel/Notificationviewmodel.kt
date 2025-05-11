@@ -2,6 +2,7 @@ package com.example.intellireview_research_paper.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.intellireview_research_paper.data.mapper.NotificationRepository
 import com.example.intellireview_research_paper.data.repository.NotificationRepositoryImpl
 import com.example.intellireview_research_paper.model.notificationmodel
 import kotlinx.coroutines.flow.*
@@ -15,7 +16,7 @@ sealed class NotificationUiState {
 }
 
 class NotificationViewModel(
-    private val repository: NotificationRepositoryImpl
+    private val repository: NotificationRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<NotificationUiState>(NotificationUiState.Idle)

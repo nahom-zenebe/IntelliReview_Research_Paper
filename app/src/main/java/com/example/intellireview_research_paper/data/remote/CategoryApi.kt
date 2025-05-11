@@ -12,7 +12,7 @@ import java.util.concurrent.TimeUnit
 
 interface CategoryApi {
 
-    @GET("category/getcategories")
+    @GET("category/getalCategory")
     suspend fun getCategories(): Response<List<categorymodel>>
 
     @FormUrlEncoded

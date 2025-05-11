@@ -1,10 +1,7 @@
-import android.R.attr.description
-import android.R.attr.label
-import android.R.attr.type
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
@@ -15,26 +12,62 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import java.text.SimpleDateFormat
-import java.util.*
 import androidx.compose.runtime.*
 import androidx.compose.material3.TextField
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.modifier.modifierLocalConsumer
+import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.intellireview_research_paper.ui.theme.White
+import androidx.navigation.NavController
 
+import com.example.intellireview_research_paper.data.mapper.CategoryRepository
+import com.example.intellireview_research_paper.data.mapper.NotificationRepository
+import com.example.intellireview_research_paper.data.repository.NotificationRepositoryImpl
+import com.example.intellireview_research_paper.ui.screens.category.CategoryViewModelFactory
+import com.example.intellireview_research_paper.ui.theme.White
 import com.example.intellireview_research_paper.ui.theme.deepBlue
 import com.example.intellireview_research_paper.viewmodel.CategoryViewModel
 import com.example.intellireview_research_paper.viewmodel.NotificationViewModel
 
+
+class NotificationViewModelFactory(
+    private val repository: NotificationRepository
+) : ViewModelProvider.Factory {
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        if (modelClass.isAssignableFrom(NotificationViewModel::class.java)) {
+            return NotificationViewModel(repository) as T
+        }
+        throw IllegalArgumentException("Unknown ViewModel class")
+    }
+}
+
+
+
+
 @Composable
 fun NotificationScreen(
-    viewModel: NotificationViewModel = viewModel()
+    navController: NavController,
+    repository: NotificationRepository
 
 ) {
-    var type by remember { mutableStateOf("") }
-    var description by remember { mutableStateOf("") }
+
+    val viewModel: NotificationViewModel = viewModel(
+        factory = NotificationViewModelFactory(repository)
+    )
+
+    var title by remember { mutableStateOf("") }
+    var message by remember { mutableStateOf("") }
+    val context = LocalContext.current
+    LaunchedEffect(viewModel.notificationCreated) {
+        viewModel.notificationCreated.collect { notification ->
+            Toast.makeText(
+                context,
+                "Category '${notification.title}' created!",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+    }
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -66,7 +99,7 @@ fun NotificationScreen(
                 // Label TextField (smaller)
                 Text(
                     modifier = Modifier.fillMaxWidth().offset(x = 12.dp),
-                    text = "Type",
+                    text = "Title",
                     fontWeight = FontWeight.Light,
                     fontSize = 23.sp,
                     color = White
@@ -75,8 +108,8 @@ fun NotificationScreen(
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 TextField(
-                    value = type,
-                    onValueChange = { type = it },
+                    value = title,
+                    onValueChange = { title = it },
 
                     shape = RoundedCornerShape(12.dp),
                     colors = TextFieldDefaults.colors(
@@ -92,7 +125,7 @@ fun NotificationScreen(
                 // Description TextField (larger)
                 Text(
                     modifier = Modifier.fillMaxWidth().offset(x = 12.dp),
-                    text = "Description",
+                    text = " message",
                     fontSize = 23.sp,
                     fontWeight = FontWeight.Light,
                     color = White
@@ -101,8 +134,8 @@ fun NotificationScreen(
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 TextField(
-                    value = description,
-                    onValueChange = { description = it },
+                    value =  message,
+                    onValueChange = {  message = it },
 
                     shape = RoundedCornerShape(12.dp),
                     colors = TextFieldDefaults.colors(
@@ -121,7 +154,7 @@ fun NotificationScreen(
                 // Create Button (Purple-Grey)
                 Button(
                     onClick = {
-                        viewModel.createNotification(type, description)
+                        viewModel.createNotification(title,  message)
                     },
                     modifier = Modifier
                         .width(190.dp)
@@ -151,6 +184,6 @@ fun NotificationScreen(
 @Composable
 fun NotificationScreenPreview() {
     MaterialTheme {
-        NotificationScreen()
+
     }
 }
