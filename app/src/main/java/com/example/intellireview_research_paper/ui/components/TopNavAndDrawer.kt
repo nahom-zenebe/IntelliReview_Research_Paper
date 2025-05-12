@@ -51,11 +51,11 @@ import com.example.intellireview_research_paper.R
 import com.example.intellireview_research_paper.ui.navigation.Screen
 import com.example.intellireview_research_paper.ui.screens.LoginScreen
 
-
 @Composable
 fun HomeTopBar(
     onMenuClick: () -> Unit,
-    inputname:String
+    inputname: String,
+    onNotificationClick: () -> Unit // Add click handler parameter
 ) {
     Row(
         modifier = Modifier
@@ -75,21 +75,24 @@ fun HomeTopBar(
             }
             Spacer(modifier = Modifier.width(4.dp))
             Text(
-                text = "$inputname",
+                text = inputname,
                 fontSize = 22.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color(0xFF36454F)
             )
         }
 
-        Icon(
-            imageVector = Icons.Outlined.Notifications,
-            contentDescription = "Notifications",
-            tint = Color(0xFF36454F),
+        // Change to IconButton and add click handler
+        IconButton(
+            onClick = onNotificationClick,
             modifier = Modifier.size(28.dp)
-
-
-        )
+        ) {
+            Icon(
+                imageVector = Icons.Outlined.Notifications,
+                contentDescription = "Notifications",
+                tint = Color(0xFF36454F)
+            )
+        }
     }
 }
 

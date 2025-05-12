@@ -10,7 +10,7 @@ import java.util.concurrent.TimeUnit
 
 interface NotificationApi {
 
-    @GET("notification/Allnotification")
+    @GET("notification/getAllNotification")
     suspend fun getNotifications(): Response<List<notificationmodel>>
 
     @FormUrlEncoded

@@ -7,6 +7,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.intellireview_research_paper.ui.components.HomeTopBar
+import com.example.intellireview_research_paper.ui.navigation.Screen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -17,7 +18,11 @@ fun GridScreen(
         topBar = {
             HomeTopBar(
                 onMenuClick = { /* Handle menu click */ },
-                inputname = "Grid View"
+                inputname = "Grid View",
+                onNotificationClick = {
+                    // Navigate to notification screen
+                    navController.navigate(Screen.CreateNotification.route)
+                }
             )
         }
     ) { innerPadding ->

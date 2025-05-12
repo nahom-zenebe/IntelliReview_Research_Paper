@@ -57,6 +57,7 @@ import com.example.intellireview_research_paper.R
 import com.example.intellireview_research_paper.data.mapper.ReviewRepository
 import com.example.intellireview_research_paper.ui.components.DrawerContent
 import com.example.intellireview_research_paper.ui.components.HomeTopBar
+import com.example.intellireview_research_paper.ui.navigation.Screen
 import com.example.intellireview_research_paper.viewmodel.ReviewViewModel
 import kotlinx.coroutines.launch
 
@@ -105,7 +106,11 @@ fun CommentingPage(
             topBar = {
                 HomeTopBar(
                     onMenuClick = { scope.launch { drawerState.open() } },
-                    inputname = "Comment"
+                    inputname = "Comment",
+                    onNotificationClick = {
+                        // Navigate to notification screen
+                        navController.navigate(Screen.CreateNotification.route)
+                    }
                 )
             },
             bottomBar = {

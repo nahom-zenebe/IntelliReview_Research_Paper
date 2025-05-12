@@ -1,13 +1,11 @@
 const express = require("express");
 const router = express.Router();
 const {
-  notifyNewPaper,
-  notifyInactiveUsers,
-  getUserNotifications,
+  createNotification,
+  getallNotification,
 } = require("../controller/Notificationcontroller");
 
-router.post("/notify-new-paper", notifyNewPaper);
-router.post("/notify-inactive-users", notifyInactiveUsers);
-router.get("/:userId", getUserNotifications);
+router.post("/createNotification", createNotification);
+router.get("/getAllNotification", getallNotification);
 
 module.exports = router;

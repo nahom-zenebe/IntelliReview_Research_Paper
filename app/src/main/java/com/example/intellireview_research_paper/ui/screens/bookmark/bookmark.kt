@@ -22,11 +22,12 @@ import com.example.intellireview_research_paper.ui.components.HomeTopBar
 import com.example.intellireview_research_paper.ui.components.SearchBar
 import com.example.intellireview_research_paper.ui.viewmodel.BookmarkViewModel
 import kotlinx.coroutines.launch
+import com.example.intellireview_research_paper.ui.navigation.Screen
 
-// ─── Add these two imports ────────────────────────────────────────────────────
+
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-// ──────────────────────────────────────────────────────────────────────────────
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -64,7 +65,11 @@ fun BookmarkScreen(
             topBar = {
                 HomeTopBar(
                     onMenuClick = { scope.launch { drawerState.open() } },
-                    inputname = "Bookmarks"
+                    inputname = "Bookmarks",
+                    onNotificationClick = {
+                        // Navigate to notification screen
+                        navController.navigate(Screen.CreateNotification.route)
+                    }
                 )
             }
         ) { innerPadding ->

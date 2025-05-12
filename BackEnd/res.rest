@@ -34,3 +34,21 @@ Content-Type: application/json
 
 ###
 get http://localhost:3500/api/admin/stats
+
+###
+get http://localhost:3500/api/paper/viewPapers
+
+###
+delete http://localhost:3500/api/category/deleteCategory/6821beaa1e1b3a26b3689652
+
+###
+get http://localhost:3500/api/category/getalCategory
+
+###
+POST http://localhost:3500/api/notification/createNotification
+Content-Type: application/json
+
+{
+  "title":   "Server Maintenance",
+  "message": "The server will be down for maintenance tonight at 11 PM."
+}

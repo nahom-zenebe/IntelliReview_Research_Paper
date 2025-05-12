@@ -17,6 +17,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.intellireview_research_paper.ui.components.DrawerContent
 import kotlinx.coroutines.launch
+import com.example.intellireview_research_paper.ui.navigation.Screen
 
 @Composable
 fun AdminDashboard(
@@ -57,7 +58,8 @@ fun AdminDashboard(
             topBar = {
                 HomeTopBar(
                     onMenuClick = { coroutineScope.launch { drawerState.open() } },
-                    inputname = "Admin Dashboard"
+                    inputname = "Admin Dashboard",
+                    onNotificationClick =  { navController.navigate(Screen.CreateNotification.route)}
                 )
             }
         ) { innerPadding ->

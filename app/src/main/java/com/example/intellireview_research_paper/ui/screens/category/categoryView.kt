@@ -2,6 +2,7 @@
 
 package com.example.intellireview_research_paper.ui.screens
 import CategoryViewCard
+import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -52,6 +53,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import com.example.intellireview_research_paper.ui.navigation.Screen
 
 class CategoryViewModelFactory(
     private val repository: CategoryRepository
@@ -112,6 +114,7 @@ fun CategoryEditDialog(
 }
 
 
+@SuppressLint("StateFlowValueCalledInComposition")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CategoryView(
@@ -218,7 +221,11 @@ fun CategoryView(
             topBar = {
                 HomeTopBar(
                     onMenuClick = { coroutineScope.launch { drawerState.open() } },
-                    inputname = "IntelliReview"
+                    inputname = "IntelliReview",
+                    onNotificationClick = {
+                        // Navigate to notification screen
+                        navController.navigate(Screen.CreateNotification.route)
+                    }
                 )
             },
             bottomBar = { /* bottom nav handled in MainActivity */ }

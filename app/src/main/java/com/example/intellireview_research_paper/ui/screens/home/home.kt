@@ -25,6 +25,7 @@ import com.example.intellireview_research_paper.R
 import com.example.intellireview_research_paper.data.repository.PaperRepositoryImpl
 import com.example.intellireview_research_paper.model.paperModel
 import com.example.intellireview_research_paper.ui.components.*
+import com.example.intellireview_research_paper.ui.navigation.Screen
 import com.example.intellireview_research_paper.ui.viewmodel.BookmarkViewModel
 import kotlinx.coroutines.launch
 
@@ -65,7 +66,11 @@ fun HomeScreen(navController: NavController) {
             topBar = {
                 HomeTopBar(
                     onMenuClick = { coroutineScope.launch { drawerState.open() } },
-                    inputname = "IntelliReview"
+                    inputname = "IntelliReview",
+                    onNotificationClick = {
+                        // Navigate to notification screen
+                        navController.navigate(Screen.CreateNotification.route)
+                    }
                 )
             }
         ) { innerPadding ->

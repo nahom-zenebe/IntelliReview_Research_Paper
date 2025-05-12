@@ -1,4 +1,5 @@
 
+import android.content.Context
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -58,21 +59,25 @@ class NotificationViewModelFactory(
 
 
 
-
 @Composable
 fun NotificationScreen(
     navController: NavController,
     repository: NotificationRepository
-
 ) {
-
+    val context = LocalContext.current
     val viewModel: NotificationViewModel = viewModel(
         factory = NotificationViewModelFactory(repository)
     )
 
+    // Get user role from SharedPreferences
+    val prefs = remember {
+        context.getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
+    }
+    val role = prefs.getString("KEY_ROLE", "") ?: ""
+    val isAdmin = role.equals("admin", ignoreCase = true)
+
     var title by remember { mutableStateOf("") }
     var message by remember { mutableStateOf("") }
-    val context = LocalContext.current
 
     // Fetch notifications when screen launches
     LaunchedEffect(Unit) {
@@ -88,75 +93,65 @@ fun NotificationScreen(
             ).show()
         }
     }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp)
     ) {
         Text(
-            text = "Notification",
+            text = "Notifications",
             style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(bottom = 16.dp).offset(8.dp)
+            modifier = Modifier.padding(bottom = 16.dp)
         )
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            Column(modifier=Modifier.fillMaxWidth()
-                .background(
-                    color=deepBlue,shape = RoundedCornerShape(16.dp))
-                .padding(12.dp)
-                ,
 
-
-
+        // Only show creation form for admins
+        if (isAdmin) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+                    .background(
+                        color = deepBlue,
+                        shape = RoundedCornerShape(16.dp))
+                    .padding(12.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-
-                Spacer(modifier = Modifier.height(12.dp))
-                // Label TextField (smaller)
+                // Title Field
                 Text(
-                    modifier = Modifier.fillMaxWidth().offset(x = 12.dp),
+                    modifier = Modifier.fillMaxWidth(),
                     text = "Title",
                     fontWeight = FontWeight.Light,
                     fontSize = 23.sp,
                     color = White
-
-
                 )
-                Spacer(modifier = Modifier.height(8.dp))
                 TextField(
                     value = title,
                     onValueChange = { title = it },
-
                     shape = RoundedCornerShape(12.dp),
                     colors = TextFieldDefaults.colors(
-                        focusedContainerColor = Color(0xFFE6E6FA), // Light Lavender
+                        focusedContainerColor = Color(0xFFE6E6FA),
                         unfocusedContainerColor = Color(0xFFE6E6FA),
                         focusedIndicatorColor = Color.Transparent,
                         unfocusedIndicatorColor = Color.Transparent
                     ),
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth()
+                )
 
-                    )
                 Spacer(modifier = Modifier.height(24.dp))
-                // Description TextField (larger)
+
+                // Message Field
                 Text(
-                    modifier = Modifier.fillMaxWidth().offset(x = 12.dp),
-                    text = " message",
+                    modifier = Modifier.fillMaxWidth(),
+                    text = "Message",
                     fontSize = 23.sp,
                     fontWeight = FontWeight.Light,
                     color = White
-
-
                 )
-                Spacer(modifier = Modifier.height(8.dp))
                 TextField(
-                    value =  message,
-                    onValueChange = {  message = it },
-
+                    value = message,
+                    onValueChange = { message = it },
                     shape = RoundedCornerShape(12.dp),
                     colors = TextFieldDefaults.colors(
                         focusedContainerColor = Color(0xFFE6E6FA),
@@ -166,22 +161,22 @@ fun NotificationScreen(
                     ),
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(120.dp), // Wider and taller
-
-                    singleLine = false // Allow multiline input
+                        .height(120.dp),
+                    singleLine = false
                 )
-                Spacer(modifier = Modifier.height(32.dp))
-                // Create Button (Purple-Grey)
+
+                // Create Button
                 Button(
                     onClick = {
-                        viewModel.createNotification(title,  message)
+                        viewModel.createNotification(title, message)
+                        title = ""
+                        message = ""
                     },
                     modifier = Modifier
                         .width(190.dp)
                         .height(35.dp)
                         .align(Alignment.CenterHorizontally),
                     shape = RoundedCornerShape(12.dp),
-
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.primary
                     )
@@ -193,10 +188,10 @@ fun NotificationScreen(
                     )
                 }
             }
+            Spacer(modifier = Modifier.height(16.dp))
         }
-        Spacer(modifier = Modifier.height(16.dp))
 
-        // Notification List
+        // Notification List (visible to all users)
         when (val state = viewModel.uiState.collectAsState().value) {
             is NotificationUiState.Loading -> {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -228,24 +223,10 @@ fun NotificationScreen(
                 }
             }
             NotificationUiState.Idle -> {
-                // Initial state, could show empty state or loading
+                // Initial state
             }
 
-            else -> {
-
-            }
+            else -> {}
         }
-    }
-    }
-
-
-
-
-
-@Preview(showBackground = true)
-@Composable
-fun NotificationScreenPreview() {
-    MaterialTheme {
-
     }
 }
