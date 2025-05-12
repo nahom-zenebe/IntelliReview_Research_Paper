@@ -34,7 +34,7 @@ app.use("/api/auth", authRouter);
 app.use("/api/paper", paperRouter);
 app.use("/api/review", reviewRouter);
 app.use("/api/category", categoryRouter);
-app.use("/notification", notificationRouter);
+app.use("/api/notification", notificationRouter);
 app.use("/api/admin", adminRouter);
 // 5) Start server and connect to MongoDB
 const PORT = process.env.PORT || 3003;
