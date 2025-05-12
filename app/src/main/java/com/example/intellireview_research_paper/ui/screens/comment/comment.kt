@@ -21,6 +21,8 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -131,7 +133,8 @@ fun CommentingPage(
                         selectedItem = selectedBottomNavItem,
                         onItemSelected = onBottomNavItemSelected,
                         navController = navController,
-                        modifier = Modifier.background(Color(0xFFECECFB))
+                        modifier = Modifier.background(Color(0xFFECECFB)),
+                        role = "user"
                     )
 
 
@@ -154,14 +157,14 @@ fun CommentingPage(
                 )
 
                 // Rating Card
-                androidx.compose.material3.Card(
+                Card(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = 12.dp),
-                    colors = androidx.compose.material3.CardDefaults.cardColors(
+                    colors = CardDefaults.cardColors(
                         containerColor = Color(0xFFa9a8db)
                     ),
-                    shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp),
+                    shape = RoundedCornerShape(12.dp),
                 ) {
                     Column(
                         modifier = Modifier

@@ -97,8 +97,8 @@ fun MainScreen() {
             Screen.Home,
             Screen.Favourites,
             Screen.Grid,
-            Screen.Profile,
-            Screen.Messages
+            Screen.Messages,
+            Screen.Profile
         )
     }
 
@@ -118,7 +118,9 @@ fun MainScreen() {
                             restoreState = true
                         }
                     },
-                    navController = navController
+                    navController = navController,
+                    role = role,
+                    modifier = Modifier
                 )
             }
         }
@@ -175,15 +177,17 @@ fun MainScreen() {
             composable(Screen.Grid.route) {
                  CategoryView(navController, repository = categoryRepo)
             }
-            composable(Screen.Profile.route) {PostingScreen()  }
             composable(Screen.Messages.route) {
                 val postVm: CreatePostViewModel = viewModel()
+                PostingScreen()
 
-                UserProfileScreen()
             }
+            composable(Screen.Profile.route) {UserProfileScreen() }
 
             // 5) Main screens for admin role
-            composable(Screen.AdminDashboard.route) { AdminDashboard(navController = navController) }
+            composable(Screen.AdminDashboard.route) {
+                AdminDashboard(navController = navController)
+            }
             composable(Screen.createCategory.route) {
                 CreateCategoryScreen(navController, repository = categoryRepo)
             }
