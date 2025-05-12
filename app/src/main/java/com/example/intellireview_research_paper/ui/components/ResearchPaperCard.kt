@@ -1,3 +1,5 @@
+// ui/components/ResearchPaperCard.kt
+
 package com.example.intellireview_research_paper.ui.components
 
 import android.content.ClipboardManager
@@ -9,6 +11,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Bookmark
+import androidx.compose.material.icons.filled.BookmarkBorder
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.ChatBubbleOutline
@@ -19,12 +22,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.platform.LocalContext
-
+import com.example.intellireview_research_paper.R
 
 @Composable
 fun ResearchPaperCard(
@@ -32,7 +35,9 @@ fun ResearchPaperCard(
     imageRes: Int,
     rating: Double,
     pdfUrl: String,
+    isBookmarked: Boolean,
     onReadClick: () -> Unit,
+    onBookmarkClick: () -> Unit,
     publishedDate: String = "12/05/2025",
     authorName: String = "john Bereket"
 ) {
@@ -43,7 +48,6 @@ fun ResearchPaperCard(
         shape = RoundedCornerShape(16.dp),
         modifier = Modifier
             .fillMaxWidth()
-            .height(IntrinsicSize.Min)
             .padding(vertical = 4.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
@@ -55,7 +59,7 @@ fun ResearchPaperCard(
                         .size(60.dp)
                         .clip(CircleShape)
                 )
-                Spacer(modifier = Modifier.width(12.dp))
+                Spacer(Modifier.width(12.dp))
                 Text(
                     text = title,
                     fontSize = 16.sp,
@@ -65,8 +69,7 @@ fun ResearchPaperCard(
                 )
             }
 
-            Spacer(modifier = Modifier.height(4.dp))
-
+            Spacer(Modifier.height(4.dp))
             Text(
                 text = "Published: $publishedDate",
                 fontSize = 10.sp,
@@ -78,7 +81,7 @@ fun ResearchPaperCard(
                 color = Color.White.copy(alpha = 0.9f)
             )
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(Modifier.height(12.dp))
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -91,10 +94,15 @@ fun ResearchPaperCard(
                     contentPadding = PaddingValues(horizontal = 23.dp, vertical = 0.dp),
                     modifier = Modifier.height(32.dp)
                 ) {
-                    Text("Read", color = Color(0xFF5D5CBB), fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
+                    Text(
+                        text = "Read",
+                        color = Color(0xFF5D5CBB),
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = 14.sp
+                    )
                 }
 
-                Spacer(modifier = Modifier.width(12.dp))
+                Spacer(Modifier.width(12.dp))
 
                 Icon(
                     imageVector = Icons.Default.Star,
@@ -102,32 +110,29 @@ fun ResearchPaperCard(
                     tint = Color.Yellow,
                     modifier = Modifier.size(20.dp)
                 )
-                Spacer(modifier = Modifier.width(4.dp))
+                Spacer(Modifier.width(4.dp))
                 Text(text = rating.toString(), color = Color.White)
 
-                Spacer(modifier = Modifier.weight(1f))
+                Spacer(Modifier.weight(1f))
 
-                // Bookmark Icon
-                IconButton(
-                    onClick = { /* Handle bookmark action */ },
-                    modifier = Modifier.size(36.dp)
-                ) {
+                // ← toggle bookmark outline/filled
+                IconButton(onClick = onBookmarkClick, modifier = Modifier.size(36.dp)) {
                     Icon(
-                        imageVector = Icons.Default.Bookmark,
-                        contentDescription = "Bookmark",
+                        imageVector = if (isBookmarked) Icons.Default.Bookmark else Icons.Default.BookmarkBorder,
+                        contentDescription = if (isBookmarked) "Remove bookmark" else "Add bookmark",
                         tint = Color.White,
                         modifier = Modifier.size(20.dp)
                     )
                 }
 
-                // Download Icon - Toast for Downloading & Downloaded
+                Spacer(Modifier.width(8.dp))
+
                 IconButton(
                     onClick = {
                         Toast.makeText(context, "Downloading...", Toast.LENGTH_SHORT).show()
-                        // Simulate download completion after a delay
                         android.os.Handler().postDelayed({
                             Toast.makeText(context, "Downloaded", Toast.LENGTH_SHORT).show()
-                        }, 2000) // Simulated delay
+                        }, 2000)
                     },
                     modifier = Modifier.size(36.dp)
                 ) {
@@ -139,11 +144,9 @@ fun ResearchPaperCard(
                     )
                 }
 
-                // Comment Icon
-                IconButton(
-                    onClick = { /* Handle comment action */ },
-                    modifier = Modifier.size(36.dp)
-                ) {
+                Spacer(Modifier.width(8.dp))
+
+                IconButton(onClick = { /* handle comment */ }, modifier = Modifier.size(36.dp)) {
                     Icon(
                         imageVector = Icons.Outlined.ChatBubbleOutline,
                         contentDescription = "Comment",
@@ -152,13 +155,15 @@ fun ResearchPaperCard(
                     )
                 }
 
-                // Share Icon - Toast for Link Copied
+                Spacer(Modifier.width(8.dp))
+
                 IconButton(
                     onClick = {
-                        val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                        android.content.ClipData.newPlainText("Research Paper Link", pdfUrl).apply {
-                            clipboard.setPrimaryClip(this)
-                        }
+                        val clipboard =
+                            context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                        clipboard.setPrimaryClip(
+                            android.content.ClipData.newPlainText("Link", pdfUrl)
+                        )
                         Toast.makeText(context, "Link copied", Toast.LENGTH_SHORT).show()
                     },
                     modifier = Modifier.size(36.dp)
@@ -174,6 +179,7 @@ fun ResearchPaperCard(
         }
     }
 }
+
 
 
 @Composable

@@ -108,7 +108,9 @@ fun AdminDashboard(
                                 // Handle read click, e.g., open PDF viewer
                             },
                             publishedDate = "2025-01-20",
-                            authorName = "Prof. Sara Mekonnen"
+                            authorName = "Prof. Sara Mekonnen",
+                            isBookmarked = false,
+                            onBookmarkClick = {}
                         )
 
                         ResearchPaperCard(
@@ -120,7 +122,9 @@ fun AdminDashboard(
                                 // Handle read click, e.g., open PDF viewer
                             },
                             publishedDate = "2025-01-20",
-                            authorName = "Prof. Sara Mekonnen"
+                            authorName = "Prof. Sara Mekonnen",
+                            isBookmarked = false,
+                            onBookmarkClick = {}
                         )
                     }
 

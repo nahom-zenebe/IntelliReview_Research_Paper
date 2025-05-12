@@ -1,3 +1,5 @@
+// ui/screens/HomeScreen.kt
+
 @file:OptIn(ExperimentalMaterial3Api::class)
 
 package com.example.intellireview_research_paper.ui.screens
@@ -22,10 +24,7 @@ import androidx.navigation.NavController
 import com.example.intellireview_research_paper.R
 import com.example.intellireview_research_paper.data.repository.PaperRepositoryImpl
 import com.example.intellireview_research_paper.model.paperModel
-import com.example.intellireview_research_paper.ui.components.DrawerContent
-import com.example.intellireview_research_paper.ui.components.HomeTopBar
-import com.example.intellireview_research_paper.ui.components.ResearchPaperCard
-import com.example.intellireview_research_paper.ui.components.SearchBar
+import com.example.intellireview_research_paper.ui.components.*
 import com.example.intellireview_research_paper.ui.viewmodel.BookmarkViewModel
 import kotlinx.coroutines.launch
 
@@ -35,19 +34,20 @@ fun HomeScreen(navController: NavController) {
     var selectedFilter by remember { mutableStateOf("All") }
     var selectedSort by remember { mutableStateOf("Name") }
 
-    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+    val drawerState = rememberDrawerState(DrawerValue.Closed)
     val coroutineScope = rememberCoroutineScope()
+    val context = LocalContext.current
+
+    // 1. ViewModel + state
     val bookmarkViewModel: BookmarkViewModel = viewModel()
-    val bookmarkedPapers = bookmarkViewModel.bookmarkedPapers.value
-    val bookmarkedPaperIds = bookmarkedPapers.mapNotNull { it.paperId }
+    val bookmarkedPapers by bookmarkViewModel.bookmarkedPapers.collectAsState()
+    val bookmarkedIds = bookmarkedPapers.mapNotNull { it.paperId }
 
+    // 2. Load papers once
     val repo = remember { PaperRepositoryImpl() }
-
     val papersState = produceState<List<paperModel>?>(initialValue = null) {
-        value = try {
-            repo.getPapers()
-        } catch (e: Exception) {
-            e.printStackTrace()
+        value = runCatching { repo.getPapers() }.getOrElse {
+            it.printStackTrace()
             emptyList()
         }
     }
@@ -57,7 +57,7 @@ fun HomeScreen(navController: NavController) {
         drawerContent = {
             DrawerContent(
                 navController = navController,
-                onLogout = { /* handle logout */ }
+                onLogout = { /* TODO */ }
             )
         }
     ) {
@@ -67,8 +67,7 @@ fun HomeScreen(navController: NavController) {
                     onMenuClick = { coroutineScope.launch { drawerState.open() } },
                     inputname = "IntelliReview"
                 )
-            },
-            bottomBar = { /* bottom nav handled in MainActivity */ }
+            }
         ) { innerPadding ->
             Column(
                 modifier = Modifier
@@ -93,17 +92,15 @@ fun HomeScreen(navController: NavController) {
                 Spacer(Modifier.height(8.dp))
 
                 when (val papers = papersState.value) {
-                    null -> {
-                        Box(
-                            Modifier.fillMaxSize(),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            CircularProgressIndicator()
-                        }
+                    null -> Box(
+                        Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator()
                     }
 
                     else -> {
-                        val filteredPapers = papers.filter { paper ->
+                        val filtered = papers.filter { paper ->
                             paper.title?.contains(searchQuery, ignoreCase = true) == true
                         }
 
@@ -112,50 +109,43 @@ fun HomeScreen(navController: NavController) {
                             modifier = Modifier.fillMaxSize()
                         ) {
                             items(
-                                items = filteredPapers,
+                                filtered,
                                 key = { it.paperId ?: it.hashCode().toString() }
                             ) { paper ->
-                                val context = LocalContext.current
-
-                                Column {
-                                    ResearchPaperCard(
-                                        title = paper.title.orEmpty(),
-                                        imageRes = R.drawable.research_paper,
-                                        rating = paper.averageRating ?: 0.0,
-                                        pdfUrl = paper.pdfUrl.orEmpty(),onReadClick = {
-                                            val pdfUrl = paper.pdfUrl.orEmpty()
-
-                                            // Log the PDF URL to verify it's correct
-                                            Log.d("PDF_URL", "PDF URL: $pdfUrl")
-
-                                            // Check if the PDF URL is valid
-                                            if (pdfUrl.isNotBlank()) {
-                                                val pdfUri = Uri.parse(pdfUrl)
-                                                val intent = Intent(Intent.ACTION_VIEW).apply {
-                                                    setDataAndType(pdfUri, "application/pdf")
-                                                    flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                                                }
-
-                                                // Try to open the PDF
-                                                try {
-                                                    context.startActivity(intent)
-                                                } catch (e: ActivityNotFoundException) {
-                                                    // Handle the case where no PDF viewer is installed
-                                                    Toast.makeText(context, "No PDF viewer app installed", Toast.LENGTH_SHORT).show()
-                                                } catch (e: Exception) {
-                                                    // Handle any other errors when opening the PDF
-                                                    Toast.makeText(context, "Error opening PDF: ${e.message}", Toast.LENGTH_SHORT).show()
-                                                }
-                                            } else {
-                                                // Handle invalid or empty URL
-                                                Toast.makeText(context, "Invalid PDF URL", Toast.LENGTH_SHORT).show()
+                                ResearchPaperCard(
+                                    title = paper.title.orEmpty(),
+                                    imageRes = R.drawable.research_paper,
+                                    rating = paper.averageRating ?: 0.0,
+                                    pdfUrl = paper.pdfUrl.orEmpty(),
+                                    isBookmarked = bookmarkedIds.contains(paper.paperId),
+                                    onReadClick = {
+                                        val url = paper.pdfUrl.orEmpty()
+                                        Log.d("PDF_URL", "PDF URL: $url")
+                                        if (url.isBlank()) {
+                                            Toast.makeText(context, "Invalid PDF URL", Toast.LENGTH_SHORT).show()
+                                        } else {
+                                            val intent = Intent(Intent.ACTION_VIEW).apply {
+                                                data = Uri.parse(url)
+                                                setDataAndType(data, "application/pdf")
+                                                flags = Intent.FLAG_ACTIVITY_NEW_TASK
                                             }
+                                            runCatching { context.startActivity(intent) }
+                                                .onFailure { err ->
+                                                    val msg = if (err is ActivityNotFoundException) {
+                                                        "No PDF viewer installed"
+                                                    } else {
+                                                        "Error opening PDF: ${err.message}"
+                                                    }
+                                                    Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
+                                                }
                                         }
-
-                                    )
-
-
-                                }
+                                    },
+                                    onBookmarkClick = {
+                                        bookmarkViewModel.toggleBookmark(paper)
+                                    },
+                                    publishedDate =  "12/05/2025",
+                                    authorName =  "Unknown Author"
+                                )
                             }
                         }
                     }
