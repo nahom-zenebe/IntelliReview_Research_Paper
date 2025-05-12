@@ -147,17 +147,10 @@ fun MainScreen() {
             }
 
             // 4) Main tabs - only accessible after login
-            composable(Screen.Home.route) { 
-                if (userViewModel.user != null) {
+            composable(Screen.Home.route) {
                     HomeScreen(navController)
-                } else {
-                    navController.navigate(Screen.Login.route) {
-                        popUpTo(Screen.Home.route) { inclusive = true }
-                    }
-                }
             }
             composable(Screen.Favourites.route) {
-                if (userViewModel.user != null) {
                     BookmarkScreen(
                         onLogout = { 
                             userViewModel.logout()
@@ -167,45 +160,26 @@ fun MainScreen() {
                         },
                         navController = navController
                     )
-                } else {
-                    navController.navigate(Screen.Login.route) {
-                        popUpTo(Screen.Favourites.route) { inclusive = true }
-                    }
-                }
             }
             composable(Screen.Grid.route) {
-                if (userViewModel.user != null) {
                     CategoryView(navController, repository = categoryRepo)
-                } else {
-                    navController.navigate(Screen.Login.route) {
-                        popUpTo(Screen.Grid.route) { inclusive = true }
-                    }
-                }
             }
             composable(Screen.Profile.route) {
                 UserProfileScreen()
             }
             composable(Screen.Messages.route) {
-                if (userViewModel.user != null) {
-                    val postVm: CreatePostViewModel = viewModel()
-                    AdminDashboard(onMenuClick = { /*...*/ })
-                } else {
-                    navController.navigate(Screen.Login.route) {
-                        popUpTo(Screen.Messages.route) { inclusive = true }
-                    }
-                }
+                val postVm: CreatePostViewModel = viewModel()
+                AdminDashboard(onMenuClick = { /*...*/ })
+
             }
             composable(Screen.createCategory.route) {
-                if (userViewModel.user != null) {
                     CreateCategoryScreen(navController, repository = categoryRepo)
-                } else {
-                    navController.navigate(Screen.Login.route) {
-                        popUpTo(Screen.createCategory.route) { inclusive = true }
-                    }
-                }
             }
             composable(Screen.CreateNotification.route) {
                 NotificationScreen(navController, repository = notificationRepo)
+            }
+            composable(Screen.AdminDashboard.route) {
+                AdminDashboard(onMenuClick = { /*...*/ })
             }
         }
     }
