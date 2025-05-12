@@ -7,6 +7,7 @@ import NotificationScreen
 
 import UserViewModel
 import WelcomeScreen
+import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -19,6 +20,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.Key.Companion.I
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
@@ -64,42 +66,51 @@ object ApiProvider {
     val categoryApi     = CategoryApiClient.apiService
     val notificationApi = NotificationApiClient.apiService
 }
-
 @Composable
 fun MainScreen() {
+    val context = LocalContext.current
     val navController = rememberNavController()
-    val backStack     by navController.currentBackStackEntryAsState()
-    val currentRoute  = backStack?.destination?.route
+    val backStack by navController.currentBackStackEntryAsState()
+    val currentRoute = backStack?.destination?.route
+
+    // Retrieve the role from SharedPreferences
+    val prefs = remember { context.getSharedPreferences("user_prefs", Context.MODE_PRIVATE) }
+    val role = prefs.getString("KEY_ROLE", "") ?: "user" // Default to "user" if no role is found
 
     // --- declare repos & VMs here ---
-    val userRepo         = remember { UserRepositoryImpl(ApiProvider.userApi) }
-    val userViewModel    = UserViewModel(userRepo)
-    val categoryRepo     = remember { CategoryRepositoryImpl(ApiProvider.categoryApi) }
+    val userRepo = remember { UserRepositoryImpl(ApiProvider.userApi) }
+    val userViewModel = UserViewModel(userRepo)
+    val categoryRepo = remember { CategoryRepositoryImpl(ApiProvider.categoryApi) }
     val notificationRepo = remember { NotificationRepositoryImpl(ApiProvider.notificationApi) }
 
-    // bottom‐tab list
-    val tabs = listOf(
-        Screen.Home,
-        Screen.Favourites,
-        Screen.Grid,
-        Screen.Profile,
-        Screen.Messages,
-        Screen.createCategory,
-        Screen.CreateNotification
-    )
+    // Determine the bottom-tab list based on role
+    val tabs = if (role == "admin") {
+        listOf(
+            Screen.AdminDashboard,
+            Screen.Favourites,
+            Screen.createCategory,
+            Screen.CreateNotification,
+            Screen.Profile
+        )
+    } else {
+        listOf(
+            Screen.Home,
+            Screen.Favourites,
+            Screen.Grid,
+            Screen.Profile,
+            Screen.Messages
+        )
+    }
+
+    // Get the selected tab index
     val selectedTab = tabs.indexOfFirst { it.route == currentRoute }.takeIf { it != -1 } ?: 0
 
     Scaffold(
         bottomBar = {
-            // hide on Welcome / Login / Sign‐up
-            if (currentRoute !in listOf(
-                    Screen.Welcome.route,
-                    Screen.Login.route,
-                    Screen.CreateAccountScreen.route
-                )
-            ) {
+            // Hide bottom bar on Welcome / Login / Sign‐up screens
+            if (currentRoute !in listOf(Screen.Welcome.route, Screen.Login.route, Screen.CreateAccountScreen.route)) {
                 BottomNavBar(
-                    selectedItem  = selectedTab,
+                    selectedItem = selectedTab,
                     onItemSelected = { index ->
                         navController.navigate(tabs[index].route) {
                             popUpTo(navController.graph.startDestinationId) { saveState = true }
@@ -113,34 +124,34 @@ fun MainScreen() {
         }
     ) { padding ->
         NavHost(
-            navController     = navController,
-            startDestination  = Screen.Welcome.route,
-            modifier          = Modifier.padding(padding)
+            navController = navController,
+            startDestination = Screen.Welcome.route,
+            modifier = Modifier.padding(padding)
         ) {
             // 1) Welcome screen
             composable(Screen.Welcome.route) {
                 WelcomeScreen(
-                    onLoginClick   = { navController.navigate(Screen.Login.route) },
-                    onSignUpClick  = { navController.navigate(Screen.CreateAccountScreen.route) }
+                    onLoginClick = { navController.navigate(Screen.Login.route) },
+                    onSignUpClick = { navController.navigate(Screen.CreateAccountScreen.route) }
                 )
             }
 
-            // 2) Login
+            // 2) Login screen
             composable(Screen.Login.route) {
                 LoginScreen(
-                    navController  = navController,
+                    navController = navController,
                     userRepository = userRepo,
-                    onBackClick    = { navController.popBackStack() }
+                    onBackClick = { navController.popBackStack() }
                 )
             }
-I
-            // 3) Sign‐up
+
+            // 3) Sign-up screen
             composable(Screen.CreateAccountScreen.route) {
                 CreateAccountScreen(
-                    navController  = navController,
+                    navController = navController,
                     userRepository = userRepo,
-                    onBackClick    = { navController.popBackStack() },
-                    onLoginClick   = { 
+                    onBackClick = { navController.popBackStack() },
+                    onLoginClick = {
                         navController.navigate(Screen.Login.route) {
                             popUpTo(Screen.Welcome.route)
                         }
@@ -148,62 +159,37 @@ I
                 )
             }
 
-            // 4) Main tabs - only accessible after login
-            composable(Screen.Home.route) {
-                    HomeScreen(navController)
-            }
+            // 4) Main screens for user role
+            composable(Screen.Home.route) { HomeScreen(navController) }
             composable(Screen.Favourites.route) {
-                    BookmarkScreen(
-                        onLogout = { 
-                            userViewModel.logout()
-                            navController.navigate(Screen.Welcome.route) {
-                                popUpTo(0) { inclusive = true }
-                            }
-                        },
-                        navController = navController
-                    )
+                BookmarkScreen(
+                    onLogout = {
+                        userViewModel.logout()
+                        navController.navigate(Screen.Welcome.route) {
+                            popUpTo(0) { inclusive = true }
+                        }
+                    },
+                    navController = navController
+                )
             }
             composable(Screen.Grid.route) {
-                    PostingScreen()
-//                    CategoryView(navController, repository = categoryRepo)
+                 CategoryView(navController, repository = categoryRepo)
             }
-            composable(Screen.Profile.route) {
-                UserProfileScreen()
-            }
+            composable(Screen.Profile.route) {PostingScreen()  }
             composable(Screen.Messages.route) {
                 val postVm: CreatePostViewModel = viewModel()
-                NotificationScreen( navController = navController,
-                    repository = notificationRepo)
 
+                UserProfileScreen()
             }
+
+            // 5) Main screens for admin role
+            composable(Screen.AdminDashboard.route) { AdminDashboard(navController = navController) }
             composable(Screen.createCategory.route) {
-                    CreateCategoryScreen(navController, repository = categoryRepo)
+                CreateCategoryScreen(navController, repository = categoryRepo)
             }
             composable(Screen.CreateNotification.route) {
                 NotificationScreen(navController, repository = notificationRepo)
             }
-            composable(Screen.AdminDashboard.route) {
-                AdminDashboard(navController = navController)
-            }
-            composable(Screen.NotificationScreen .route) {
-                NotificationScreen(
-                    navController = navController,
-                    repository = notificationRepo
-
-                )
-            }
-            composable(Screen.NotificationScreen .route) {
-                PostingScreen()
-            }
-
         }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun MainScreenPreview() {
-    IntelliReview_Research_PaperTheme {
-        MainScreen()
     }
 }
