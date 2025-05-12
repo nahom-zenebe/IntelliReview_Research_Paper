@@ -9,7 +9,6 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -127,21 +126,23 @@ fun UserProfileScreen() {
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(start = 16.dp)
                 )
-                Spacer(Modifier.height(16.dp))
-            }
+                Spacer(Modifier.height(32.dp))
 
-            val dummyPapers = listOf(
-                Paper(title = "Exploring AI Ethics", averageRating = 4.5),
-                Paper(title = "Quantum Computing Overview", averageRating = 4.8)
-            )
+                // Centered message
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "No recent posts",
+                        fontSize = 16.sp,
+                        color = Color.Gray
+                    )
+                }
 
-            items(dummyPapers) { paper ->
-                ResearchPaperCard(
-                    title = paper.title.orEmpty(),
-                    imageRes = R.drawable.research_paper,
-                    rating = paper.averageRating
-                )
-                Spacer(Modifier.height(16.dp))
+                Spacer(Modifier.height(32.dp))
             }
         }
     }

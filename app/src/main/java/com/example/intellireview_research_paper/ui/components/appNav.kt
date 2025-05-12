@@ -10,9 +10,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Add
+import androidx.compose.material.icons.outlined.BarChart
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.GridView
 import androidx.compose.material.icons.outlined.Home
+import androidx.compose.material.icons.outlined.NotificationsActive
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Send
 import androidx.compose.material3.Icon
@@ -26,29 +29,52 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.intellireview_research_paper.ui.navigation.Screen
 
-
 @Composable
 fun BottomNavBar(
     selectedItem: Int,
     onItemSelected: (Int) -> Unit,
     navController: NavHostController,
+    role: String, // Add role as a parameter
     modifier: Modifier = Modifier
 ) {
-    val items = listOf(
-        Screen.Home,
-        Screen.Favourites,
-        Screen.Grid,
-        Screen.Messages,
-        Screen.Profile
-    )
+    // Set different items based on the user's role
+    val items = if (role == "admin") {
+        listOf(
+            Screen.AdminDashboard,
+            Screen.Favourites,
+            Screen.createCategory,
+            Screen.CreateNotification,
+            Screen.Profile
+        )
+    } else {
+        listOf(
+            Screen.Home,
+            Screen.Favourites,
+            Screen.Grid,
+            Screen.Messages,
+            Screen.Profile
+        )
+    }
 
-    val icons = listOf(
+    // Define icons for user and admin
+    val userIcons = listOf(
         Icons.Outlined.Home,
         Icons.Outlined.FavoriteBorder,
         Icons.Outlined.GridView,
         Icons.Outlined.Send,
         Icons.Outlined.Person
     )
+
+    val adminIcons = listOf(
+        Icons.Outlined.Home,
+        Icons.Outlined.FavoriteBorder,
+        Icons.Outlined.Add,
+        Icons.Outlined.NotificationsActive,
+        Icons.Outlined.Person
+    )
+
+    // Select the appropriate icons based on the role
+    val icons = if (role == "admin") adminIcons else userIcons
 
     NavigationBar(
         containerColor = Color(0xFFECECFB),
