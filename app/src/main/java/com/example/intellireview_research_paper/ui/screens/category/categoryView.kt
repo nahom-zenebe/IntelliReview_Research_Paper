@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -17,6 +18,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -36,6 +38,7 @@ import com.example.intellireview_research_paper.ui.viewmodel.BookmarkViewModel
 import androidx.navigation.NavController
 import com.example.intellireview_research_paper.data.mapper.CategoryRepository
 import com.example.intellireview_research_paper.data.repository.PaperRepositoryImpl
+import com.example.intellireview_research_paper.model.categorymodel
 import com.example.intellireview_research_paper.ui.components.DrawerContent
 import com.example.intellireview_research_paper.ui.components.HomeTopBar
 import com.example.intellireview_research_paper.ui.components.SearchBar
@@ -66,6 +69,10 @@ fun CategoryView(
     var searchQuery by remember { mutableStateOf("") }
     val categoryViewModel: CategoryViewModel = viewModel(factory = CategoryViewModelFactory(repository))
     val uiState by categoryViewModel.uiState.collectAsState()
+
+    var showDeleteDialog by remember { mutableStateOf(false) }
+    var categoryToDelete by remember { mutableStateOf<categorymodel?>(null) }
+
     LaunchedEffect(Unit) {
         categoryViewModel.fetchCategories()
     }
@@ -79,6 +86,36 @@ fun CategoryView(
 
     // Repository
     val repo = remember { PaperRepositoryImpl() }
+    if (showDeleteDialog) {
+        AlertDialog(
+            onDismissRequest = { showDeleteDialog = false },
+            title = { Text("Confirm Deletion") },
+            text = { Text("Are you sure you want to delete this category?") },
+            confirmButton = {
+                TextButton (
+                    onClick = {
+                        categoryToDelete?.let { category ->
+                            categoryViewModel.deleteCategory(category.categoryId.toString())
+                        }
+                        showDeleteDialog = false
+                        categoryToDelete = null // Clear the category to delete
+                    }
+                ) {
+                    Text("Delete")
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = {
+                        showDeleteDialog = false
+                        categoryToDelete = null
+                    }
+                ) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
 
 
     ModalNavigationDrawer(
@@ -133,7 +170,9 @@ fun CategoryView(
                                         // TODO: Open edit dialog or screen
                                     },
                                     onDeleteClick = {
-                                        categoryViewModel.deleteCategory(category.categoryId.toString())
+
+                                        categoryToDelete = category
+                                        showDeleteDialog = true
                                     }
                                 )
                             }
