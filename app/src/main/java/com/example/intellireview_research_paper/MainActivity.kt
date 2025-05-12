@@ -31,6 +31,7 @@ import com.example.intellireview_research_paper.data.remote.NotificationApiClien
 
 import com.example.intellireview_research_paper.data.repository.CategoryRepositoryImpl
 import com.example.intellireview_research_paper.data.repository.NotificationRepositoryImpl
+import com.example.intellireview_research_paper.ui.components.PostingScreen
 
 import com.example.intellireview_research_paper.ui.navigation.Screen
 import com.example.intellireview_research_paper.ui.screens.BookmarkScreen
@@ -163,7 +164,7 @@ I
                     )
             }
             composable(Screen.Grid.route) {
-                    AdminDashboard(onMenuClick = { /*...*/ })
+                    PostingScreen()
 //                    CategoryView(navController, repository = categoryRepo)
             }
             composable(Screen.Profile.route) {
@@ -191,6 +192,10 @@ I
 
                 )
             }
+            composable(Screen.NotificationScreen .route) {
+                PostingScreen()
+            }
+
         }
     }
 }

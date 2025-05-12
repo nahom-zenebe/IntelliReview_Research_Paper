@@ -78,21 +78,22 @@ fun AdminDashboard(
                     )
 
                     // Demo 1: With rating
-                    ResearchPaperCard(
-                        title = "AI in Healthcare: An Overview",
-                        imageRes = R.drawable.research_paper, // Replace with actual drawable
-                        rating = 4.2,
-                        publishedDate = "2024-12-15",
-                        authorName = "Dr. Alex Johnson"
-                    )
-
-                    // Demo 2: Without rating
-                    ResearchPaperCardNorating(
-                        title = "Blockchain Applications in Research",
-                        imageRes = R.drawable.research_paper, // Replace with actual drawable
-                        publishedDate = "2025-01-20",
-                        authorName = "Prof. Sara Mekonnen"
-                    )
+//                    ResearchPaperCard(
+//                        title = "AI in Healthcare: An Overview",
+//                        imageRes = R.drawable.research_paper, // Replace with actual drawable
+//                        rating = 4.2,
+//                        publishedDate = "2024-12-15",
+//                        authorName = "Dr. Alex Johnson",
+//
+//                    )
+//
+//                    // Demo 2: Without rating
+//                    ResearchPaperCardNorating(
+//                        title = "Blockchain Applications in Research",
+//                        imageRes = R.drawable.research_paper, // Replace with actual drawable
+//                        publishedDate = "2025-01-20",
+//                        authorName = "Prof. Sara Mekonnen"
+//                    )
                 }
 
             }

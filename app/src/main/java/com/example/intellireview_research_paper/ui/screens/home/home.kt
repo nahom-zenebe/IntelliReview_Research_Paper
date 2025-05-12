@@ -3,6 +3,11 @@
 package com.example.intellireview_research_paper.ui.screens
 
 import FilterSortRow
+import android.content.ActivityNotFoundException
+import android.content.Intent
+import android.net.Uri
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -14,6 +19,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
@@ -29,22 +35,18 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun HomeScreen(navController: NavController) {
-    // Search and filter state
     var searchQuery by remember { mutableStateOf("") }
     var selectedFilter by remember { mutableStateOf("All") }
     var selectedSort by remember { mutableStateOf("Name") }
 
-    // Drawer state
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val coroutineScope = rememberCoroutineScope()
     val bookmarkViewModel: BookmarkViewModel = viewModel()
     val bookmarkedPapers = bookmarkViewModel.bookmarkedPapers.value
     val bookmarkedPaperIds = bookmarkedPapers.mapNotNull { it.paperId }
 
-    // Repository
     val repo = remember { PaperRepositoryImpl() }
 
-    // Load papers from backend
     val papersState = produceState<List<paperModel>?>(initialValue = null) {
         value = try {
             repo.getPapers()
@@ -117,46 +119,80 @@ fun HomeScreen(navController: NavController) {
                                 items = filteredPapers,
                                 key = { it.paperId ?: it.hashCode().toString() }
                             ) { paper ->
-                                Box(
-                                    Modifier.fillMaxWidth()
-                                ) {
+                                val context = LocalContext.current
+
+                                Column {
                                     ResearchPaperCard(
                                         title = paper.title.orEmpty(),
                                         imageRes = R.drawable.research_paper,
-                                        rating = paper.averageRating
+                                        rating = paper.averageRating ?: 0.0,
+                                        pdfUrl = paper.pdfUrl.orEmpty(),onReadClick = {
+                                            val pdfUrl = paper.pdfUrl.orEmpty()
+
+                                            // Log the PDF URL to verify it's correct
+                                            Log.d("PDF_URL", "PDF URL: $pdfUrl")
+
+                                            // Check if the PDF URL is valid
+                                            if (pdfUrl.isNotBlank()) {
+                                                val pdfUri = Uri.parse(pdfUrl)
+                                                val intent = Intent(Intent.ACTION_VIEW).apply {
+                                                    setDataAndType(pdfUri, "application/pdf")
+                                                    flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                                                }
+
+                                                // Try to open the PDF
+                                                try {
+                                                    context.startActivity(intent)
+                                                } catch (e: ActivityNotFoundException) {
+                                                    // Handle the case where no PDF viewer is installed
+                                                    Toast.makeText(context, "No PDF viewer app installed", Toast.LENGTH_SHORT).show()
+                                                } catch (e: Exception) {
+                                                    // Handle any other errors when opening the PDF
+                                                    Toast.makeText(context, "Error opening PDF: ${e.message}", Toast.LENGTH_SHORT).show()
+                                                }
+                                            } else {
+                                                // Handle invalid or empty URL
+                                                Toast.makeText(context, "Invalid PDF URL", Toast.LENGTH_SHORT).show()
+                                            }
+                                        }
+
                                     )
 
-                                    IconButton(
-                                        onClick = {
-                                            navController.navigate("posting?paperId=${paper.paperId}")
-                                        },
-                                        modifier = Modifier.align(Alignment.TopEnd)
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.End
                                     ) {
-                                        Icon(
-                                            Icons.Filled.Edit,
-                                            contentDescription = "Edit",
-                                            tint = MaterialTheme.colorScheme.primary
-                                        )
-                                    }
-
-                                    IconButton(
-                                        onClick = {
-                                            bookmarkViewModel.toggleBookmark(paper)
+                                        IconButton(
+                                            onClick = {
+                                                navController.navigate("posting?paperId=${paper.paperId}")
+                                            }
+                                        ) {
+                                            Icon(
+                                                Icons.Filled.Edit,
+                                                contentDescription = "Edit",
+                                                tint = MaterialTheme.colorScheme.primary
+                                            )
                                         }
-                                    ) {
-                                        Icon(
-                                            imageVector = if (paper.paperId in bookmarkedPaperIds) {
-                                                Icons.Filled.Bookmark
-                                            } else {
-                                                Icons.Outlined.BookmarkBorder
-                                            },
-                                            contentDescription = if (paper.paperId in bookmarkedPaperIds) {
-                                                "Remove bookmark"
-                                            } else {
-                                                "Add bookmark"
-                                            },
-                                            tint = MaterialTheme.colorScheme.primary
-                                        )
+
+                                        IconButton(
+                                            onClick = {
+                                                bookmarkViewModel.toggleBookmark(paper)
+                                            }
+                                        ) {
+                                            Icon(
+                                                imageVector = if (paper.paperId in bookmarkedPaperIds) {
+                                                    Icons.Filled.Bookmark
+                                                } else {
+                                                    Icons.Outlined.BookmarkBorder
+                                                },
+                                                contentDescription = if (paper.paperId in bookmarkedPaperIds) {
+                                                    "Remove bookmark"
+                                                } else {
+                                                    "Add bookmark"
+                                                },
+                                                tint = MaterialTheme.colorScheme.primary
+                                            )
+                                        }
                                     }
                                 }
                             }

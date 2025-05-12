@@ -52,8 +52,10 @@ fun ResearchPaperCard(
     title: String,
     imageRes: Int,
     rating: Double,
-    publishedDate: String = "Placeholder Date",
-    authorName: String = "Placeholder Author"
+    pdfUrl: String,
+    onReadClick: () -> Unit,
+    publishedDate: String = "12/05/2025",
+    authorName: String = "john Bereket"
 ) {
     Card(
         colors = CardDefaults.cardColors(containerColor = Color(0xFF5D5CBB)),
@@ -103,7 +105,7 @@ fun ResearchPaperCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Button(
-                    onClick = { /* Handle read */ },
+                    onClick = onReadClick,
                     colors = ButtonDefaults.buttonColors(containerColor = Color.White),
                     shape = RoundedCornerShape(18.dp),
                     contentPadding = PaddingValues(horizontal = 23.dp, vertical = 0.dp),

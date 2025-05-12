@@ -10,6 +10,7 @@ import okhttp3.RequestBody.Companion.asRequestBody
 import java.io.File
 
 class PaperRepositoryImpl : PaperRepository {
+
     override suspend fun getPapers(): List<paperModel> =
         PaperApiClient.apiService.getPapers().body() ?: emptyList()
 
