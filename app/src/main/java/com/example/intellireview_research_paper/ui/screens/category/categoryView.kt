@@ -46,7 +46,12 @@ import com.example.intellireview_research_paper.ui.screens.category.CategoryView
 import com.example.intellireview_research_paper.viewmodel.CategoryUiState
 import com.example.intellireview_research_paper.viewmodel.CategoryViewModel
 import kotlinx.coroutines.launch
-
+import android.widget.Toast
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 
 class CategoryViewModelFactory(
     private val repository: CategoryRepository
@@ -60,6 +65,54 @@ class CategoryViewModelFactory(
     }
 }
 
+
+@Composable
+fun CategoryEditDialog(
+    category: categorymodel,
+    onDismiss: () -> Unit,
+    onUpdate: (String, String) -> Unit
+) {
+    var updatedName by remember { mutableStateOf(category.name) }
+    var updatedDescription by remember { mutableStateOf(category.description) }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Edit Category") },
+        text = {
+            Column {
+                OutlinedTextField(
+                    value = updatedName,
+                    onValueChange = { updatedName = it },
+                    label = { Text("Name") }
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                OutlinedTextField(
+                    value = updatedDescription,
+                    onValueChange = { updatedDescription = it },
+                    label = { Text("Description") }
+                )
+            }
+        },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    onUpdate(updatedName, updatedDescription)
+                    onDismiss()
+                }
+            ) {
+                Text("Update")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancel")
+            }
+        }
+    )
+}
+
+
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CategoryView(
     navController: NavController,
@@ -69,9 +122,12 @@ fun CategoryView(
     var searchQuery by remember { mutableStateOf("") }
     val categoryViewModel: CategoryViewModel = viewModel(factory = CategoryViewModelFactory(repository))
     val uiState by categoryViewModel.uiState.collectAsState()
+    var showEditDialog by remember { mutableStateOf(false) }
+    var categoryToEdit by remember { mutableStateOf<categorymodel?>(null) }
 
     var showDeleteDialog by remember { mutableStateOf(false) }
     var categoryToDelete by remember { mutableStateOf<categorymodel?>(null) }
+    val context = LocalContext.current
 
     LaunchedEffect(Unit) {
         categoryViewModel.fetchCategories()
@@ -84,22 +140,49 @@ fun CategoryView(
     val bookmarkedPapers = bookmarkViewModel.bookmarkedPapers.value
     val bookmarkedPaperIds = bookmarkedPapers.mapNotNull { it.paperId }
 
-    // Repository
-    val repo = remember { PaperRepositoryImpl() }
+
+    if (showEditDialog && categoryToEdit != null) {
+        CategoryEditDialog(
+            category = categoryToEdit!!,
+            onDismiss = {
+                showEditDialog = false
+                categoryToEdit = null
+            },
+            onUpdate = { updatedName, updatedDescription ->
+                categoryToEdit?.categoryId?.let { id ->
+                    categoryViewModel.editCategory(
+                        categoryId = id,
+                        name = updatedName,
+                        description = updatedDescription
+                    )
+                } ?: run {
+                    Toast.makeText(context, "Invalid category ID", Toast.LENGTH_SHORT).show()
+                }})
+
+    }
+
+    // Handle delete confirmation
     if (showDeleteDialog) {
         AlertDialog(
             onDismissRequest = { showDeleteDialog = false },
             title = { Text("Confirm Deletion") },
-            text = { Text("Are you sure you want to delete this category?") },
+            text = {
+                Text("Are you sure you want to delete '${categoryToDelete?.name}'?")
+            },
             confirmButton = {
-                TextButton (
+                TextButton(
                     onClick = {
-                        categoryToDelete?.let { category ->
-                            categoryViewModel.deleteCategory(category.categoryId.toString())
+                        categoryToDelete?.categoryId?.let { id ->
+                            categoryViewModel.deleteCategory(id)
+                            Toast.makeText(context, "Category deleted successfully", Toast.LENGTH_SHORT).show()
+                        } ?: run {
+                            Toast.makeText(context, "Invalid category ID", Toast.LENGTH_SHORT).show()
                         }
-                        showDeleteDialog = false
-                        categoryToDelete = null // Clear the category to delete
-                    }
+
+                    },
+                    colors = ButtonDefaults.textButtonColors(
+                        contentColor = MaterialTheme.colorScheme.error
+                    )
                 ) {
                     Text("Delete")
                 }
@@ -116,7 +199,11 @@ fun CategoryView(
             }
         )
     }
-
+    LaunchedEffect(uiState) {
+        if (uiState is CategoryUiState.Success) {
+            Toast.makeText(context, "Category updated", Toast.LENGTH_SHORT).show()
+        }
+    }
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -144,14 +231,13 @@ fun CategoryView(
             ) {
                 SearchBar(
                     query = searchQuery,
-                    onQueryChanged = { searchQuery = it }
+                    onQueryChanged = { newQuery ->
+                        searchQuery = newQuery
+                        categoryViewModel.searchCategory(newQuery)
+                    }
                 )
 
                 Spacer(Modifier.height(12.dp))
-
-
-
-                Spacer(Modifier.height(8.dp))
 
                 when (val state = uiState) {
                     is CategoryUiState.Loading -> {
@@ -159,32 +245,56 @@ fun CategoryView(
                             CircularProgressIndicator()
                         }
                     }
-
-
                     is CategoryUiState.Success -> {
-                        LazyColumn {
-                            items(state.categories) { category ->
-                                CategoryViewCard(
-                                    text = category.name,
-                                    onEditClick = {
-                                        // TODO: Open edit dialog or screen
-                                    },
-                                    onDeleteClick = {
+                        if (state.categories.isEmpty()) {
+                            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                                Text("No categories found")
+                            }
+                        } else {
+                            LazyColumn {
+                                items(state.categories) { category ->
+                                    CategoryViewCard(
+                                        text = category.name,
+                                        onEditClick = {
 
-                                        categoryToDelete = category
-                                        showDeleteDialog = true
-                                    }
-                                )
+                                            categoryToEdit = category
+                                            showEditDialog = true
+                                        },
+                                        onDeleteClick = {
+                                            categoryToDelete = category
+                                            showDeleteDialog = true
+                                        }
+                                    )
+                                }
                             }
                         }
                     }
-
-                    else -> {
+                    is CategoryUiState.Error -> {
                         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                            Text(
-                                text = "Error: getting category",
-                                color = MaterialTheme.colorScheme.error
-                            )
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Text(
+                                    text = state.message,
+                                    color = MaterialTheme.colorScheme.error
+                                )
+                                Spacer(modifier = Modifier.height(8.dp))
+                                Button(
+                                    onClick = { categoryViewModel.fetchCategories() }
+                                ) {
+                                    Text("Retry")
+                                }
+                            }
+                        }
                     }
+                    CategoryUiState.Idle -> {
+                        // Initial state, could show empty state or loading
+                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                            CircularProgressIndicator()
+                        }
+                    }
+
+                    else -> {}
                 }
-        }}}}}
+            }
+        }
+    }
+}

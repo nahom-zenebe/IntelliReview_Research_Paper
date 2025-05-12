@@ -66,10 +66,12 @@ class CategoryViewModel(
                 repository.deleteCategory(categoryId)
                 fetchCategories()
             } catch (e: Exception) {
+                // Ensure we don't silently fail
                 _uiState.value = CategoryUiState.Error(e.localizedMessage ?: "Delete failed")
             }
         }
     }
+
 
     fun editCategory(categoryId: String, name: String, description: String) {
         viewModelScope.launch {

@@ -33,6 +33,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -47,19 +49,34 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.intellireview_research_paper.R
+import com.example.intellireview_research_paper.data.mapper.ReviewRepository
 import com.example.intellireview_research_paper.ui.components.DrawerContent
 import com.example.intellireview_research_paper.ui.components.HomeTopBar
+import com.example.intellireview_research_paper.viewmodel.ReviewViewModel
 import kotlinx.coroutines.launch
 
-
+class ReviewViewModelFactory(
+    private val repository: ReviewRepository
+) : ViewModelProvider.Factory {
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        if (modelClass.isAssignableFrom(ReviewViewModel::class.java)) {
+            return ReviewViewModel(repository) as T
+        }
+        throw IllegalArgumentException("Unknown ViewModel class")
+    }
+}
 
 @Composable
 fun CommentingPage(
     navController: NavHostController,
     selectedBottomNavItem: Int = 0,
-    onBottomNavItemSelected: (Int) -> Unit = {}
+    onBottomNavItemSelected: (Int) -> Unit = {},
+    reviewRepository: ReviewRepository
 ) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
@@ -68,6 +85,13 @@ fun CommentingPage(
     var commentText by remember { mutableStateOf("") }
     var comments by remember { mutableStateOf<List<String>>(emptyList()) }
 
+    val viewModel: ReviewViewModel = viewModel(
+        factory = ReviewViewModelFactory(reviewRepository)
+    )
+    val uiState by viewModel.uiState.collectAsState()
+    LaunchedEffect (Unit) {
+        viewModel.fetchReviews()
+    }
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
@@ -103,8 +127,13 @@ fun CommentingPage(
                             IconButton(
                                 onClick = {
                                     if (commentText.isNotBlank()) {
-                                        comments = comments + commentText
-                                        commentText = ""
+                                        viewModel.createReview(
+                                            commentText,
+                                            userId = TODO(),
+                                            rating = TODO(),
+                                            comment = TODO()
+                                        ) // Add comment via ViewModel
+                                        commentText = "" // Clear the text field after sending
                                     }
                                 },
                                 modifier = Modifier.padding(end = 8.dp)

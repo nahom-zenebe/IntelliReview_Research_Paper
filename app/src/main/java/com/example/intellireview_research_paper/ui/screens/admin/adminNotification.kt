@@ -83,7 +83,7 @@ fun NotificationScreen(
         viewModel.notificationCreated.collect { notification ->
             Toast.makeText(
                 context,
-                "Category '${notification.title}' created!",
+                "Notification '${notification.title}' created!",
                 Toast.LENGTH_SHORT
             ).show()
         }

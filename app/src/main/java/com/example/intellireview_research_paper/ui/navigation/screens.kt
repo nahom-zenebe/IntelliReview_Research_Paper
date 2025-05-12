@@ -14,4 +14,5 @@ sealed class Screen(val route: String) {
     object AdminDashboard      : Screen("admindashboard")
     object NotificationScreen  : Screen("noticationscreen")
     object PostingScreen       : Screen("posting")
+    object commentScreen       :Screen("commentscreen")
 }
