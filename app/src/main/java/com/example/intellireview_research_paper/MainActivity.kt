@@ -183,7 +183,7 @@ I
                 NotificationScreen(navController, repository = notificationRepo)
             }
             composable(Screen.AdminDashboard.route) {
-                AdminDashboard(onMenuClick = { /*...*/ })
+                AdminDashboard(navController = navController)
             }
             composable(Screen.NotificationScreen .route) {
                 NotificationScreen(

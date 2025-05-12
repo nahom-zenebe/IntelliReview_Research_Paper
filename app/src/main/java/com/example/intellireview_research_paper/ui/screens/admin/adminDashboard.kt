@@ -12,12 +12,16 @@ import com.example.intellireview_research_paper.R
 import com.example.intellireview_research_paper.ui.components.FilterSortCategory
 import com.example.intellireview_research_paper.ui.components.HomeTopBar
 import com.example.intellireview_research_paper.ui.components.ResearchPaperCard
-import com.example.intellireview_research_paper.ui.components.ResearchPaperCardNorating
 import com.example.intellireview_research_paper.ui.components.SearchBar
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
+import com.example.intellireview_research_paper.ui.components.DrawerContent
+import kotlinx.coroutines.launch
 
 @Composable
 fun AdminDashboard(
-    onMenuClick: () -> Unit = {}
+    navController: NavController,
+    onLogout: () -> Unit = {}
 ) {
     val viewModel: AdminViewModel = viewModel()
     val stats by viewModel.adminStats
@@ -33,73 +37,96 @@ fun AdminDashboard(
         viewModel.fetchAdminStats()
     }
 
-    Scaffold(
-        topBar = {
-            HomeTopBar(
-                onMenuClick = onMenuClick,
-                inputname = "Admin Dashboard"
+    // Drawer logic
+    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+    val coroutineScope = rememberCoroutineScope()
+
+    ModalNavigationDrawer(
+        drawerState = drawerState,
+        drawerContent = {
+            DrawerContent(
+                navController = navController,
+                onLogout = {
+                    coroutineScope.launch { drawerState.close() }
+                    onLogout()
+                }
             )
         }
-    ) { innerPadding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(12.dp)
-                .padding(innerPadding)
-        ) {
-            // Search and filters
-            SearchBar(query = query, onQueryChanged = { query = it })
+    ) {
+        Scaffold(
+            topBar = {
+                HomeTopBar(
+                    onMenuClick = { coroutineScope.launch { drawerState.open() } },
+                    inputname = "Admin Dashboard"
+                )
+            }
+        ) { innerPadding ->
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(12.dp)
+                    .padding(innerPadding)
+            ) {
+                // Search and filters
+                SearchBar(query = query, onQueryChanged = { query = it })
 
-            FilterSortCategory(
-                selectedFilter = selectedFilter,
-                onFilterSelected = { selectedFilter = it },
-                selectedSort = selectedSort,
-                onSortSelected = { selectedSort = it },
-                selectedCategory = selectedCategory,
-                onCategorySelected = { selectedCategory = it }
-            )
+                FilterSortCategory(
+                    selectedFilter = selectedFilter,
+                    onFilterSelected = { selectedFilter = it },
+                    selectedSort = selectedSort,
+                    onSortSelected = { selectedSort = it },
+                    selectedCategory = selectedCategory,
+                    onCategorySelected = { selectedCategory = it }
+                )
 
-            Spacer(modifier = Modifier.height(30.dp))
+                Spacer(modifier = Modifier.height(30.dp))
 
-            // Stats cards
-            if (isLoading) {
-                CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
-            } else {
-                Column {
-                    StatsRow(stats = stats)
+                // Stats cards
+                if (isLoading) {
+                    CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
+                } else {
+                    Column {
+                        StatsRow(stats = stats)
 
-                    Spacer(modifier = Modifier.height(24.dp))
+                        Spacer(modifier = Modifier.height(24.dp))
 
-                    Text(
-                        text = "Recently posted",
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
-                    )
+                        Text(
+                            text = "Recently posted",
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                        )
 
-                    // Demo 1: With rating
-//                    ResearchPaperCard(
-//                        title = "AI in Healthcare: An Overview",
-//                        imageRes = R.drawable.research_paper, // Replace with actual drawable
-//                        rating = 4.2,
-//                        publishedDate = "2024-12-15",
-//                        authorName = "Dr. Alex Johnson",
-//
-//                    )
-//
-//                    // Demo 2: Without rating
-//                    ResearchPaperCardNorating(
-//                        title = "Blockchain Applications in Research",
-//                        imageRes = R.drawable.research_paper, // Replace with actual drawable
-//                        publishedDate = "2025-01-20",
-//                        authorName = "Prof. Sara Mekonnen"
-//                    )
+
+                        // Demo 1: With rating
+                        ResearchPaperCard(
+                            title = "Blockchain Applications in Research",
+                            imageRes = R.drawable.research_paper, // Replace with actual drawable
+                            rating = 4.0, // Set a default or actual rating value
+                            pdfUrl = "https://path.to/your/pdf", // Replace with the actual PDF URL
+                            onReadClick = {
+                                // Handle read click, e.g., open PDF viewer
+                            },
+                            publishedDate = "2025-01-20",
+                            authorName = "Prof. Sara Mekonnen"
+                        )
+
+                        ResearchPaperCard(
+                            title = "Blockchain Applications in Research",
+                            imageRes = R.drawable.research_paper, // Replace with actual drawable
+                            rating = 4.0, // Set a default or actual rating value
+                            pdfUrl = "https://path.to/your/pdf", // Replace with the actual PDF URL
+                            onReadClick = {
+                                // Handle read click, e.g., open PDF viewer
+                            },
+                            publishedDate = "2025-01-20",
+                            authorName = "Prof. Sara Mekonnen"
+                        )
+                    }
+
                 }
-
             }
         }
-
-
     }
 }
 
@@ -168,6 +195,7 @@ fun StatCard(
 @Composable
 fun AdminDashboardPreview() {
     MaterialTheme {
-        AdminDashboard()
+        AdminDashboard(navController = rememberNavController())
     }
 }
+

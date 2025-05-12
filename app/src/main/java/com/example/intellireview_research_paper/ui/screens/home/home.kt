@@ -11,10 +11,6 @@ import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Bookmark
-import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.outlined.BookmarkBorder
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -158,42 +154,7 @@ fun HomeScreen(navController: NavController) {
 
                                     )
 
-                                    Row(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        horizontalArrangement = Arrangement.End
-                                    ) {
-                                        IconButton(
-                                            onClick = {
-                                                navController.navigate("posting?paperId=${paper.paperId}")
-                                            }
-                                        ) {
-                                            Icon(
-                                                Icons.Filled.Edit,
-                                                contentDescription = "Edit",
-                                                tint = MaterialTheme.colorScheme.primary
-                                            )
-                                        }
 
-                                        IconButton(
-                                            onClick = {
-                                                bookmarkViewModel.toggleBookmark(paper)
-                                            }
-                                        ) {
-                                            Icon(
-                                                imageVector = if (paper.paperId in bookmarkedPaperIds) {
-                                                    Icons.Filled.Bookmark
-                                                } else {
-                                                    Icons.Outlined.BookmarkBorder
-                                                },
-                                                contentDescription = if (paper.paperId in bookmarkedPaperIds) {
-                                                    "Remove bookmark"
-                                                } else {
-                                                    "Add bookmark"
-                                                },
-                                                tint = MaterialTheme.colorScheme.primary
-                                            )
-                                        }
-                                    }
                                 }
                             }
                         }

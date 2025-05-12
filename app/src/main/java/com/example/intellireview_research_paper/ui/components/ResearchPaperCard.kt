@@ -1,50 +1,29 @@
 package com.example.intellireview_research_paper.ui.components
 
+import android.content.ClipboardManager
+import android.content.Context
+import android.widget.Toast
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.BookmarkBorder
+import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.ChatBubbleOutline
 import androidx.compose.material.icons.outlined.FileDownload
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-
-
-// Example paper card usage
-//                ResearchPaperCard(
-//                    title = "Deep Learning Approaches in Medical Imaging",
-//                    imageRes = R.drawable.research_paper,
-//                    rating = 4.5
-//                )
-
+import androidx.compose.ui.platform.LocalContext
 
 
 @Composable
@@ -57,6 +36,8 @@ fun ResearchPaperCard(
     publishedDate: String = "12/05/2025",
     authorName: String = "john Bereket"
 ) {
+    val context = LocalContext.current
+
     Card(
         colors = CardDefaults.cardColors(containerColor = Color(0xFF5D5CBB)),
         shape = RoundedCornerShape(16.dp),
@@ -70,7 +51,6 @@ fun ResearchPaperCard(
                 Image(
                     painter = painterResource(id = imageRes),
                     contentDescription = "Preview Image",
-                    contentScale = ContentScale.Crop,
                     modifier = Modifier
                         .size(60.dp)
                         .clip(CircleShape)
@@ -127,23 +107,68 @@ fun ResearchPaperCard(
 
                 Spacer(modifier = Modifier.weight(1f))
 
-                listOf(
-                    Icons.Outlined.FileDownload to "Download",
-                    Icons.Default.BookmarkBorder to "Bookmark",
-                    Icons.Outlined.ChatBubbleOutline to "Comment",
-                    Icons.Default.Share to "Share"
-                ).forEach { (icon, desc) ->
-                    IconButton(
-                        onClick = { /* Handle action */ },
-                        modifier = Modifier.size(36.dp)
-                    ) {
-                        Icon(
-                            imageVector = icon,
-                            contentDescription = desc,
-                            tint = Color.White,
-                            modifier = Modifier.size(20.dp)
-                        )
-                    }
+                // Bookmark Icon
+                IconButton(
+                    onClick = { /* Handle bookmark action */ },
+                    modifier = Modifier.size(36.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Bookmark,
+                        contentDescription = "Bookmark",
+                        tint = Color.White,
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
+
+                // Download Icon - Toast for Downloading & Downloaded
+                IconButton(
+                    onClick = {
+                        Toast.makeText(context, "Downloading...", Toast.LENGTH_SHORT).show()
+                        // Simulate download completion after a delay
+                        android.os.Handler().postDelayed({
+                            Toast.makeText(context, "Downloaded", Toast.LENGTH_SHORT).show()
+                        }, 2000) // Simulated delay
+                    },
+                    modifier = Modifier.size(36.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.FileDownload,
+                        contentDescription = "Download",
+                        tint = Color.White,
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
+
+                // Comment Icon
+                IconButton(
+                    onClick = { /* Handle comment action */ },
+                    modifier = Modifier.size(36.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.ChatBubbleOutline,
+                        contentDescription = "Comment",
+                        tint = Color.White,
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
+
+                // Share Icon - Toast for Link Copied
+                IconButton(
+                    onClick = {
+                        val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                        android.content.ClipData.newPlainText("Research Paper Link", pdfUrl).apply {
+                            clipboard.setPrimaryClip(this)
+                        }
+                        Toast.makeText(context, "Link copied", Toast.LENGTH_SHORT).show()
+                    },
+                    modifier = Modifier.size(36.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Share,
+                        contentDescription = "Share",
+                        tint = Color.White,
+                        modifier = Modifier.size(20.dp)
+                    )
                 }
             }
         }
@@ -157,7 +182,7 @@ fun ResearchPaperCardNorating(
     imageRes: Int,
     publishedDate: String = "Placeholder Date",
     authorName: String = "Placeholder Author"
-){
+) {
     Card(
         colors = CardDefaults.cardColors(containerColor = Color(0xFF5D5CBB)),
         shape = RoundedCornerShape(16.dp),
@@ -171,7 +196,6 @@ fun ResearchPaperCardNorating(
                 Image(
                     painter = painterResource(id = imageRes),
                     contentDescription = "Preview Image",
-                    contentScale = ContentScale.Crop,
                     modifier = Modifier
                         .size(60.dp)
                         .clip(CircleShape)
@@ -219,23 +243,55 @@ fun ResearchPaperCardNorating(
 
                 Spacer(modifier = Modifier.weight(1f))
 
-                listOf(
-                    Icons.Outlined.FileDownload to "Download",
-                    Icons.Default.BookmarkBorder to "Bookmark",
-                    Icons.Outlined.ChatBubbleOutline to "Comment",
-                    Icons.Default.Share to "Share"
-                ).forEach { (icon, desc) ->
-                    IconButton(
-                        onClick = { /* Handle action */ },
-                        modifier = Modifier.size(36.dp)
-                    ) {
-                        Icon(
-                            imageVector = icon,
-                            contentDescription = desc,
-                            tint = Color.White,
-                            modifier = Modifier.size(20.dp)
-                        )
-                    }
+                // Download Icon - Toast for Downloading & Downloaded
+                IconButton(
+                    onClick = {
+//                        Toast.makeText(context, "Downloading...", Toast.LENGTH_SHORT).show()
+//
+//                        android.os.Handler().postDelayed({
+//                            Toast.makeText(context, "Downloaded", Toast.LENGTH_SHORT).show()
+//                        }, 2000) // Simulated delay
+                    },
+                    modifier = Modifier.size(36.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.FileDownload,
+                        contentDescription = "Download",
+                        tint = Color.White,
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
+
+                // Comment Icon
+                IconButton(
+                    onClick = { /* Handle comment action */ },
+                    modifier = Modifier.size(36.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.ChatBubbleOutline,
+                        contentDescription = "Comment",
+                        tint = Color.White,
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
+
+                // Share Icon - Toast for Link Copied
+                IconButton(
+                    onClick = {
+//                        val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+//                        android.content.ClipData.newPlainText("Research Paper Link", pdfUrl).apply {
+//                            clipboard.setPrimaryClip(this)
+//                        }
+//                        Toast.makeText(context, "Link copied", Toast.LENGTH_SHORT).show()
+                    },
+                    modifier = Modifier.size(36.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Share,
+                        contentDescription = "Share",
+                        tint = Color.White,
+                        modifier = Modifier.size(20.dp)
+                    )
                 }
             }
         }
