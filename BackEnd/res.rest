@@ -21,3 +21,16 @@ Content-Type: application/json
   "country": "Ethiopia",
   "role": "admin",
 }
+
+###
+Post http://localhost:3500/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "abel.tefcom",
+  "password": "securePassword123"
+  
+}
+
+###
+get http://localhost:3500/api/admin/stats

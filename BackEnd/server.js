@@ -8,6 +8,7 @@ const paperRouter = require("./router/paperRouter");
 const reviewRouter = require("./router/ReviewRouter");
 const categoryRouter = require("./router/CategoryRouter");
 const notificationRouter = require("./router/NotificationRouter");
+const adminRouter = require("./router/adminRouter");
 const { MongoDBconfig } = require("./utils/mongoconfig");
 
 const app = express();
@@ -34,7 +35,7 @@ app.use("/api/paper", paperRouter);
 app.use("/api/review", reviewRouter);
 app.use("/api/category", categoryRouter);
 app.use("/notification", notificationRouter);
-
+app.use("/api/admin", adminRouter);
 // 5) Start server and connect to MongoDB
 const PORT = process.env.PORT || 3003;
 app.listen(PORT, async () => {

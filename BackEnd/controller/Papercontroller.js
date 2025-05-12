@@ -26,6 +26,7 @@ const uploadPaper = async (req, res) => {
 
     const savedPaper = await newPaper.save();
 
+    console.log("paper added to DB");
     res.status(201).json({
       message: "Paper uploaded successfully",
       paper: savedPaper,

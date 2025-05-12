@@ -53,7 +53,7 @@ module.exports.signup = async (req, res) => {
     // Send a response back to the client
     res.status(201).json({
       message: "Signup successful",
-      savedUser: {
+      user: {
         id: savedUser._id,
         name: savedUser.name,
         email: savedUser.email,
