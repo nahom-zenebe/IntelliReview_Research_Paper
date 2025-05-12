@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -27,9 +28,13 @@ import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -37,11 +42,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.example.intellireview_research_paper.R
 import com.example.intellireview_research_paper.ui.navigation.Screen
+import com.example.intellireview_research_paper.ui.screens.LoginScreen
+
 
 @Composable
 fun HomeTopBar(
@@ -203,7 +212,19 @@ fun DrawerContent(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clickable { onLogout() }
+                    .clickable {
+                        // 1. First execute the logout logic
+                        onLogout()
+
+                        // 2. Then navigate to login screen with cleared back stack
+                        navController.navigate(Screen.Login.route) {
+                            // Clear the entire back stack
+                            popUpTo(0)
+
+                            // Optional: Prevent multiple login screens
+                            launchSingleTop = true
+                        }
+                    }
                     .padding(vertical = 16.dp)
             ) {
                 Icon(
@@ -219,6 +240,56 @@ fun DrawerContent(
                     fontWeight = FontWeight.SemiBold,
                     color = Color(0xFF36454F)
                 )
+            }
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun DrawerContentPreview() {
+    MaterialTheme {
+        // Create a mock NavController for preview
+        val navController = rememberNavController()
+
+        // State to show if logout was clicked
+        var showLogoutMessage by remember { mutableStateOf(false) }
+
+        // Mock SharedPreferences data
+        val context = LocalContext.current
+        val mockPrefs = remember {
+            context.getSharedPreferences("preview_prefs", Context.MODE_PRIVATE).apply {
+                edit()
+                    .putString("KEY_NAME", "Jane Smith")
+                    .putString("KEY_EMAIL", "jane@example.com")
+                    .putString("KEY_ROLE", "Researcher")
+                    .apply()
+            }
+        }
+
+        Box(modifier = Modifier.fillMaxSize()) {
+            DrawerContent(
+                navController = navController,
+                onLogout = {
+                    // This will be called when logout is clicked
+                    showLogoutMessage = true
+                    println("Logout clicked in preview!")
+                }
+            )
+
+            if (showLogoutMessage) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color.Black.copy(alpha = 0.7f))
+                ) {
+                    Text(
+                        text = "Logout Clicked!",
+                        color = Color.White,
+                        fontSize = 24.sp,
+                        modifier = Modifier.align(Alignment.Center)
+                    )
+                }
             }
         }
     }
