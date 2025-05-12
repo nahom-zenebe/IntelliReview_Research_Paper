@@ -18,6 +18,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.key.Key.Companion.I
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
@@ -131,7 +132,7 @@ fun MainScreen() {
                     onBackClick    = { navController.popBackStack() }
                 )
             }
-
+I
             // 3) Sign‐up
             composable(Screen.CreateAccountScreen.route) {
                 CreateAccountScreen(
@@ -162,14 +163,16 @@ fun MainScreen() {
                     )
             }
             composable(Screen.Grid.route) {
-                    CategoryView(navController, repository = categoryRepo)
+                    AdminDashboard(onMenuClick = { /*...*/ })
+//                    CategoryView(navController, repository = categoryRepo)
             }
             composable(Screen.Profile.route) {
                 UserProfileScreen()
             }
             composable(Screen.Messages.route) {
                 val postVm: CreatePostViewModel = viewModel()
-                AdminDashboard(onMenuClick = { /*...*/ })
+                NotificationScreen( navController = navController,
+                    repository = notificationRepo)
 
             }
             composable(Screen.createCategory.route) {
@@ -180,6 +183,13 @@ fun MainScreen() {
             }
             composable(Screen.AdminDashboard.route) {
                 AdminDashboard(onMenuClick = { /*...*/ })
+            }
+            composable(Screen.NotificationScreen .route) {
+                NotificationScreen(
+                    navController = navController,
+                    repository = notificationRepo
+
+                )
             }
         }
     }
