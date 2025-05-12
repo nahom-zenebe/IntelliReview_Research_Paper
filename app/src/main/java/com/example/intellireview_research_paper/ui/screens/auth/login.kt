@@ -1,15 +1,13 @@
+// File: ui/screens/LoginScreen.kt
 package com.example.intellireview_research_paper.ui.screens
 
 import UserViewModel
+import android.content.Context
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -17,20 +15,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -39,13 +25,11 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.input.*
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.*
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.intellireview_research_paper.R
@@ -57,12 +41,10 @@ fun LoginScreen(
     userRepository: UserRepositoryImpl,
     onBackClick: () -> Unit = {}
 ) {
-    // Local UI state for email/password
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
 
-    // Factory to provide UserViewModel
     class UserViewModelFactory(private val repo: UserRepositoryImpl) : ViewModelProvider.Factory {
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             if (modelClass.isAssignableFrom(UserViewModel::class.java)) {
@@ -73,25 +55,38 @@ fun LoginScreen(
         }
     }
 
-    // Obtain ViewModel
     val viewModel: UserViewModel = viewModel(factory = UserViewModelFactory(userRepository))
-
-    // Observe login state
     val isLoading = viewModel.isLoading
     val error = viewModel.errorMessage
     val user = viewModel.user
     val context = LocalContext.current
 
-    // On successful login, navigate
     LaunchedEffect(user) {
-        if (user != null) {
+        user?.let {
+            // Synchronous write so profile sees it immediately
+            val prefs = context.getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
+            prefs.edit()
+                .putString("KEY_NAME",  it.name)
+                .putString("KEY_EMAIL", it.email)
+                .putString("KEY_ROLE",  it.role)
+                .apply()     // <-- COMMIT instead of apply()
+
+            Log.d("SharedPrefs", "Saved: ${user.name}, ${user.email}, ${user.role}")
+
             Toast.makeText(context, "Login successful!", Toast.LENGTH_SHORT).show()
-            navController.navigate("home") {
-                popUpTo("login") { inclusive = true }
+            // Check the role and navigate to the appropriate screen
+            if (user.role == "admin") {
+                navController.navigate("admindashboard") {
+                    popUpTo("login") { inclusive = true }
+                }
+            } else {
+                navController.navigate("home") {
+                    popUpTo("login") { inclusive = true }
+                }
             }
         }
     }
-    // Show error toast
+
     LaunchedEffect(error) {
         error?.let {
             Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
@@ -104,7 +99,6 @@ fun LoginScreen(
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
     ) {
-        // Banner image
         Image(
             painter = painterResource(id = R.drawable.research_paper),
             contentDescription = null,
@@ -131,7 +125,6 @@ fun LoginScreen(
                 modifier = Modifier.padding(vertical = 16.dp)
             )
 
-            // Email field
             OutlinedTextField(
                 value = email,
                 onValueChange = { email = it },
@@ -149,16 +142,18 @@ fun LoginScreen(
             )
             Spacer(Modifier.height(16.dp))
 
-            // Password field
             OutlinedTextField(
                 value = password,
                 onValueChange = { password = it },
                 label = { Text("Password") },
                 placeholder = { Text("••••••••") },
                 singleLine = true,
-                visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                visualTransformation =
+                if (passwordVisible) VisualTransformation.None
+                else PasswordVisualTransformation(),
                 trailingIcon = {
-                    val icon = if (passwordVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility
+                    val icon = if (passwordVisible)
+                        Icons.Default.VisibilityOff else Icons.Default.Visibility
                     IconButton(onClick = { passwordVisible = !passwordVisible }) {
                         Icon(icon, contentDescription = null)
                     }
@@ -174,7 +169,6 @@ fun LoginScreen(
             )
             Spacer(Modifier.height(24.dp))
 
-            // Login button
             Button(
                 onClick = { viewModel.login(email, password) },
                 enabled = !isLoading,

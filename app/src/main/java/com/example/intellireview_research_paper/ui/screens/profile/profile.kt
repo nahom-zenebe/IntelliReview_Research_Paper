@@ -1,39 +1,25 @@
+// File: ui/screens/UserProfileScreen.kt
+package com.example.intellireview_research_paper.ui.screens
 
-import android.os.FileUtils
+import android.content.Context
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.BookmarkBorder
-import androidx.compose.material.icons.filled.Download
-import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Share
-import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.Icon
-import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -45,223 +31,189 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.intellireview_research_paper.R
-import androidx.compose.runtime.collectAsState
 
-
-
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.intellireview_research_paper.model.usermodel
+data class Paper(
+    val title: String,
+    val averageRating: Double
+)
 
 @Composable
-fun UserProfileScreen(viewModel: UserViewModel = viewModel()) {
-    val user by viewModel.userInfo.collectAsState()
+fun UserProfileScreen() {
+    val context = LocalContext.current
+
+    // Read saved user info from SharedPreferences each time
+    val prefs = remember {
+        context.getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
+    }
+    val name  = prefs.getString("KEY_NAME", "")  ?: ""
+    val email = prefs.getString("KEY_EMAIL", "") ?: ""
+    val role  = prefs.getString("KEY_ROLE", "")  ?: ""
+
+    Log.d("UserProfileScreen", "Name: $name, Email: $email, Role: $role")
+
+    // Launcher stub (for future upload)
+    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+        uri?.let {
+            // val file = FileUtils.getFileFromUri(context, it)
+            // file?.let { viewModel.uploadImageToCloudinary(it) }
+        }
+    }
+
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background
     ) {
-
-        val context = LocalContext.current
-        val launcher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
-            uri?.let {
-                //val file =FileUtils.getFileFromUri(context, it)
-               // file?.let { viewModel.uploadImageToCloudinary(it) }
-            }
-        }
-
-
-
         LazyColumn(
-            modifier = Modifier.padding(vertical = 16.dp)
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(vertical = 16.dp)
         ) {
             item {
-                UserHeaderSection(user = user)
-                Spacer(modifier = Modifier.height(24.dp))
-                UserStatsSection()
-                Spacer(modifier = Modifier.height(24.dp))
-                RecentPostsHeader()
-                Spacer(modifier = Modifier.height(16.dp))
-            }
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(Color(0xFF5D5CBB))
+                        .padding(vertical = 24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(80.dp)
+                            .clip(CircleShape)
+                            .background(Color.LightGray)
+                    ) {
+                        Image(
+                            painter = painterResource(id = R.drawable.ic_launcher_foreground),
+                            contentDescription = "Profile picture",
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
+                    Spacer(Modifier.height(16.dp))
+                    Text(
+                        text = name.ifBlank { "Guest User" },
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White
+                    )
+                    Text(
+                        text = email.ifBlank { "No email" },
+                        fontSize = 14.sp,
+                        color = Color.White.copy(alpha = 0.8f)
+                    )
+                    Spacer(Modifier.height(8.dp))
+                    Text(
+                        text = role.ifBlank { "User" }.replaceFirstChar { it.uppercase() },
+                        fontSize = 14.sp,
+                        color = Color.White.copy(alpha = 0.8f)
+                    )
+                    Spacer(Modifier.height(24.dp))
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 24.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        StatItem(Icons.Default.Star,   "0.0", "Avg rates")
+                        StatItem(Icons.Default.Comment,"0", "Comments")
+                        StatItem(Icons.Default.PostAdd,"0", "Posts")
+                    }
+                }
 
-            items(2) {
-                PostItem()
-                Spacer(modifier = Modifier.height(16.dp))
-            }
-        }
-    }
-}
-
-
-
-@Composable
-fun UserHeaderSection(user: usermodel?) {
-
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(Color(0xFF5D5CBB))
-            .padding(vertical = 24.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Box(
-            modifier = Modifier
-                .size(80.dp)
-                .clip(CircleShape)
-                .background(Color.LightGray)
-        ) {
-            Image(
-                painter = painterResource(id = R.drawable.ic_launcher_foreground),
-                contentDescription = "Profile picture",
-                contentScale = ContentScale.Crop,
-                modifier = Modifier.fillMaxSize()
-            )
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Text(
-            text = user?.name ?: "Guest User",
-            fontSize = 20.sp,
-            fontWeight = FontWeight.Bold,
-            color = Color.White
-        )
-        Text(
-            text = user?.email ?: "No email",
-            fontSize = 14.sp,
-            color = Color.White.copy(alpha = 0.8f)
-        )
-        Text(
-            text = "User",
-            fontSize = 14.sp,
-            color = Color.White.copy(alpha = 0.8f)
-        )
-        Text(
-            text = "Addis Ababa, Ethiopia",
-            fontSize = 14.sp,
-            color = Color.White.copy(alpha = 0.8f)
-        )
-    }
-}
-
-@Composable
-fun UserStatsSection() {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(12.dp))
-            .background(Color(0xFF100E83))
-            .padding(vertical = 16.dp, horizontal = 24.dp)
-    ) {
-        CompositionLocalProvider(LocalContentColor provides Color.White) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                StatItem(icon = Icons.Default.Star, value = "4.7", label = "Avg rates")
-                StatItem(value = "50+", label = "Comments")
-                StatItem(value = "10+", label = "Posts")
-            }
-        }
-    }
-}
-
-
-@Composable
-fun StatItem(icon: Any? = null, value: String, label: String) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            if (icon != null) {
-                Icon(
-                    imageVector = icon as androidx.compose.ui.graphics.vector.ImageVector,
-                    contentDescription = null,
-                    tint = Color(0xFFFFA500),
-                    modifier = Modifier.size(16.dp)
+                Spacer(Modifier.height(24.dp))
+                Text(
+                    text = "Recent posts",
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(start = 16.dp)
                 )
-                Spacer(modifier = Modifier.width(4.dp))
+                Spacer(Modifier.height(16.dp))
             }
-            Text(
-                text = value,
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold
+
+            val dummyPapers = listOf(
+                Paper(title = "Exploring AI Ethics", averageRating = 4.5),
+                Paper(title = "Quantum Computing Overview", averageRating = 4.8)
             )
+
+            items(dummyPapers) { paper ->
+                ResearchPaperCard(
+                    title = paper.title.orEmpty(),
+                    imageRes = R.drawable.research_paper,
+                    rating = paper.averageRating
+                )
+                Spacer(Modifier.height(16.dp))
+            }
         }
-        Text(
-            text = label,
-            fontSize = 12.sp,
-            color = Color.Gray
-        )
     }
 }
 
 @Composable
-fun RecentPostsHeader() {
-    Text(
-        text = "Recent posts",
-        fontSize = 18.sp,
-        fontWeight = FontWeight.Bold
-    )
+private fun StatItem(
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    value: String,
+    label: String
+) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Icon(icon, contentDescription = null, tint = Color(0xFFFFA500), modifier = Modifier.size(16.dp))
+            Spacer(Modifier.width(4.dp))
+            Text(text = value, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+        }
+        Text(text = label, fontSize = 12.sp, color = Color.Gray)
+    }
 }
 
 @Composable
-fun PostItem(modifier: Modifier = Modifier) {
+private fun ResearchPaperCard(
+    title: String,
+    imageRes: Int,
+    rating: Double
+) {
     Surface(
         color = Color(0xFF5D5CBB),
-        shape = MaterialTheme.shapes.medium,
-        modifier = modifier.fillMaxWidth()
+        shape = RoundedCornerShape(8.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp)
     ) {
         Row(
-            modifier = Modifier
-                .padding(16.dp)
-                .fillMaxWidth(),
+            modifier = Modifier.padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Image(
-                painter = painterResource(id = R.drawable.ic_launcher_foreground),
-                contentDescription = "Post thumbnail",
+                painter = painterResource(id = imageRes),
+                contentDescription = "Research Paper Thumbnail",
                 modifier = Modifier
                     .size(50.dp)
-                    .clip(MaterialTheme.shapes.small),
+                    .clip(RoundedCornerShape(4.dp)),
                 contentScale = ContentScale.Crop
             )
-
-            Spacer(modifier = Modifier.width(12.dp))
-
+            Spacer(Modifier.width(12.dp))
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = "What is the mathematical equation\nrequired to be  good guy",
+                    text = title,
                     color = Color.White,
                     fontSize = 14.sp,
                     fontWeight = FontWeight.SemiBold
                 )
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
+                Spacer(Modifier.height(8.dp))
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     Surface(
-                        shape = MaterialTheme.shapes.small,
+                        shape = RoundedCornerShape(4.dp),
                         color = Color.White
                     ) {
                         Text(
-                            text = "Read",
+                            text = "Rating: $rating",
                             color = Color(0xFF5D5CBB),
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Bold,
                             modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
                         )
                     }
-
-                    Spacer(modifier = Modifier.width(20.dp))
-
-                    Icon(imageVector = Icons.Default.Edit, contentDescription = "Edit", tint = Color.White, modifier = Modifier.size(20.dp))
-                    Icon(imageVector = Icons.Default.Download, contentDescription = "Download", tint = Color.White, modifier = Modifier.size(20.dp))
-                    Icon(imageVector = Icons.Default.BookmarkBorder, contentDescription = "Bookmark", tint = Color.White, modifier = Modifier.size(20.dp))
-                    Icon(imageVector = Icons.Default.Share, contentDescription = "Share", tint = Color.White, modifier = Modifier.size(20.dp))
+                    Icon(Icons.Default.Edit, contentDescription = null, tint = Color.White, modifier = Modifier.size(20.dp))
+                    Icon(Icons.Default.Download, contentDescription = null, tint = Color.White, modifier = Modifier.size(20.dp))
+                    Icon(Icons.Default.BookmarkBorder, contentDescription = null, tint = Color.White, modifier = Modifier.size(20.dp))
+                    Icon(Icons.Default.Share, contentDescription = null, tint = Color.White, modifier = Modifier.size(20.dp))
                 }
             }
         }

@@ -1,5 +1,7 @@
 package com.example.intellireview_research_paper.ui.components
 
+import android.content.Context
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -27,10 +29,12 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -85,6 +89,20 @@ fun DrawerContent(
     navController: NavController,
     onLogout: () -> Unit
 ) {
+
+    val context = LocalContext.current
+
+    // Read saved user info from SharedPreferences each time
+    val prefs = remember {
+        context.getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
+    }
+    val name  = prefs.getString("KEY_NAME", "")  ?: ""
+    val email = prefs.getString("KEY_EMAIL", "") ?: ""
+    val role  = prefs.getString("KEY_ROLE", "")  ?: ""
+
+    Log.d("UserProfileScreen", "Name: $name, Email: $email, Role: $role")
+
+
     val items = listOf(
         "Home" to Screen.Home.route,
         "Profile" to Screen.Profile.route,
@@ -120,13 +138,13 @@ fun DrawerContent(
             Spacer(modifier = Modifier.height(12.dp))
 
             Text(
-                text = "John Doe",
+                text = name.ifBlank { "Guest User" },
                 fontWeight = FontWeight.Bold,
                 fontSize = 18.sp,
                 color = Color.White
             )
             Text(
-                text = "john.doe@example.com",
+                text = email.ifBlank { "no email" },
                 fontSize = 14.sp,
                 color = Color.White
             )

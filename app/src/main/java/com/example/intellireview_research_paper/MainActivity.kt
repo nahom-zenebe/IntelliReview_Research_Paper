@@ -4,7 +4,7 @@ import AdminDashboard
 import BottomNavBar
 import CreateAccountScreen
 import NotificationScreen
-import UserProfileScreen
+
 import UserViewModel
 import WelcomeScreen
 import android.os.Bundle
@@ -37,6 +37,7 @@ import com.example.intellireview_research_paper.ui.screens.CategoryView
 
 import com.example.intellireview_research_paper.ui.screens.HomeScreen
 import com.example.intellireview_research_paper.ui.screens.LoginScreen
+import com.example.intellireview_research_paper.ui.screens.UserProfileScreen
 
 import com.example.intellireview_research_paper.ui.screens.category.CreateCategoryScreen
 import com.example.intellireview_research_paper.ui.theme.IntelliReview_Research_PaperTheme
@@ -151,7 +152,7 @@ fun MainScreen() {
                 CategoryView(navController, repository = categoryRepo)
             }
             composable(Screen.Profile.route) {
-                UserProfileScreen(viewModel = userViewModel)
+                UserProfileScreen()
             }
             composable(Screen.Messages.route) {
                 val postVm: CreatePostViewModel = viewModel()
@@ -162,6 +163,11 @@ fun MainScreen() {
             }
             composable(Screen.CreateNotification.route) {
                 NotificationScreen(navController, repository = notificationRepo)
+            }
+
+            composable(Screen.AdminDashboard.route) {
+                val postVm: CreatePostViewModel = viewModel()
+                AdminDashboard(onMenuClick = { /*...*/ })
             }
         }
     }

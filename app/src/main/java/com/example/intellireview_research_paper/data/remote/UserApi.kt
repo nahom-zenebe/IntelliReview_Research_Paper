@@ -1,6 +1,8 @@
 package com.example.intellireview_research_paper.data.remote
 
 
+import LoginResponse
+import SignupResponse
 import com.example.intellireview_research_paper.model.usermodel
 import retrofit2.Response
 import retrofit2.http.Field
@@ -18,14 +20,14 @@ interface UserApi {
         @Field("password") password: String,
         @Field("country") country: String,
         @Field("role") role: String
-    ): Response<usermodel>
+    ): Response<SignupResponse>  // Changed to SignupResponse
 
     @FormUrlEncoded
     @POST("auth/login")
     suspend fun login(
         @Field("email") email: String,
         @Field("password") password: String
-    ): Response<usermodel>
+    ): Response<LoginResponse>
 
     @POST("/auth/logout")
     suspend fun logout(): Response<Void>

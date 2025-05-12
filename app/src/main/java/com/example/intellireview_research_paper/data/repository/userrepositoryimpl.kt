@@ -6,31 +6,41 @@ import com.example.intellireview_research_paper.model.usermodel
 
 class UserRepositoryImpl(private val api: UserApi) : UserRepository {
 
-    // Signup method implementation
     override suspend fun Signup(
         name: String,
         email: String,
-        password: String,
+        password: String,  // Removed redundant toString()
         country: String,
         role: String
     ): usermodel {
         val response = api.signup(
             name = name,
             email = email,
-            password = password.toString(),
+            password = password,  // Directly use String
             country = country,
             role = role
         )
-        return response.body() ?: throw Exception("Signup failed: ${response.errorBody()?.string()}")
-    }
 
+        if (response.isSuccessful) {
+            val signupResponse = response.body()
+                ?: throw Exception("Signup failed: Empty response body")
+
+            return signupResponse.user ?: throw Exception("Signup failed: No user data in response")
+        } else {
+            val errorBody = response.errorBody()?.string() ?: "Unknown error"
+            throw Exception("Signup failed: $errorBody")
+        }
+    }
     // Login method implementation
-    override suspend fun Login(
-        email: String,
-        password: String
-    ): usermodel {
-        val response = api.login(email, password.toString())
-        return response.body() ?: throw Exception("Login failed: ${response.errorBody()?.string()}")
+    override suspend fun Login(email: String, password: String): usermodel {
+        val response = api.login(email, password)
+        if (response.isSuccessful) {
+            val loginResponse = response.body()
+            // Extract the nested "user" object
+            return loginResponse?.user ?: throw Exception("Login failed: No user data")
+        } else {
+            throw Exception("Login failed: ${response.errorBody()?.string()}")
+        }
     }
 
     // Logout method implementation

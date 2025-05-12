@@ -1,3 +1,5 @@
+import android.content.Context
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -85,13 +87,31 @@ fun CreateAccountScreen(
 
     LaunchedEffect(user) {
         if (user != null) {
-            Toast.makeText(context, "Signup successful!", Toast.LENGTH_SHORT).show()
-            navController.navigate("home") {
-                popUpTo("signup") { inclusive = true }
-            }
+            // Save to SharedPreferences
+            val prefs = context.getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
+            prefs.edit()
+                .putString("KEY_NAME", user.name)
+                .putString("KEY_EMAIL", user.email)
+                .putString("KEY_ROLE", user.role)
+                .apply()
 
+            Log.d("SignupPrefs", "Saved: ${user.name}, ${user.email}, ${user.role}")
+
+            Toast.makeText(context, "Signup successful!", Toast.LENGTH_SHORT).show()
+
+            // Check the role and navigate to the appropriate screen
+            if (user.role == "admin") {
+                navController.navigate("admindashboard") {
+                    popUpTo("signup") { inclusive = true }
+                }
+            } else {
+                navController.navigate("home") {
+                    popUpTo("signup") { inclusive = true }
+                }
+            }
         }
     }
+
 
     Column(
         modifier = Modifier

@@ -8,6 +8,9 @@ data class usermodel (
     val role:String?=null,
     val ProfilePic:String?=null,
     val createdAt: String? = null,
-    val updatedAt: String? = null
+    val updatedAt: String? = null,
+    val token: String? = null,
+    val id: String? = null,
+
 
 )
