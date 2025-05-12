@@ -44,6 +44,8 @@ fun LoginScreen(
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
+    var emailError by remember { mutableStateOf<String?>(null) }
+    var passwordError by remember { mutableStateOf<String?>(null) }
 
     class UserViewModelFactory(private val repo: UserRepositoryImpl) : ViewModelProvider.Factory {
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
@@ -104,8 +106,8 @@ fun LoginScreen(
             contentDescription = null,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(300.dp)
-                .padding(top = 32.dp)
+                .height(250.dp)
+                .padding(top = 20.dp)
         )
 
         Column(
@@ -125,10 +127,24 @@ fun LoginScreen(
                 modifier = Modifier.padding(vertical = 16.dp)
             )
 
+            // Email section
+            Text(
+                "Email",
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Medium,
+                color = Color(0xff36454f),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 8.dp)
+            )
             OutlinedTextField(
                 value = email,
-                onValueChange = { email = it },
-                label = { Text("Email") },
+                onValueChange = { 
+                    email = it
+                    emailError = if (it.isBlank()) "Email cannot be empty" 
+                               else if (!android.util.Patterns.EMAIL_ADDRESS.matcher(it).matches()) "Invalid email format"
+                               else null
+                },
                 placeholder = { Text("johndoe@example.com") },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
@@ -138,14 +154,30 @@ fun LoginScreen(
                     focusedContainerColor = Color(0xFFF0F0F0),
                     unfocusedBorderColor = Color.Transparent,
                     focusedBorderColor = Color.Transparent
-                )
+                ),
+                isError = emailError != null,
+                supportingText = { emailError?.let { Text(it, color = Color.Red) } }
             )
             Spacer(Modifier.height(16.dp))
 
+            // Password section
+            Text(
+                "Password",
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Medium,
+                color = Color(0xff36454f),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 8.dp)
+            )
             OutlinedTextField(
                 value = password,
-                onValueChange = { password = it },
-                label = { Text("Password") },
+                onValueChange = { 
+                    password = it
+                    passwordError = if (it.isBlank()) "Password cannot be empty"
+                                  else if (it.length < 6) "Password must be at least 6 characters"
+                                  else null
+                },
                 placeholder = { Text("••••••••") },
                 singleLine = true,
                 visualTransformation =
@@ -165,12 +197,22 @@ fun LoginScreen(
                     focusedContainerColor = Color(0xFFF0F0F0),
                     unfocusedBorderColor = Color.Transparent,
                     focusedBorderColor = Color.Transparent
-                )
+                ),
+                isError = passwordError != null,
+                supportingText = { passwordError?.let { Text(it, color = Color.Red) } }
             )
             Spacer(Modifier.height(24.dp))
 
             Button(
-                onClick = { viewModel.login(email, password) },
+                onClick = { 
+                    if (email.isBlank() || password.isBlank()) {
+                        Toast.makeText(context, "Please fill in all fields", Toast.LENGTH_SHORT).show()
+                    } else if (emailError == null && passwordError == null) {
+                        viewModel.login(email, password)
+                    } else {
+                        Toast.makeText(context, "Please fix the validation errors", Toast.LENGTH_SHORT).show()
+                    }
+                },
                 enabled = !isLoading,
                 modifier = Modifier
                     .fillMaxWidth(0.6f)

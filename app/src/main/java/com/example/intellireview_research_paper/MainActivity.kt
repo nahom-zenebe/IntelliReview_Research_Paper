@@ -136,38 +136,76 @@ fun MainScreen() {
             composable(Screen.CreateAccountScreen.route) {
                 CreateAccountScreen(
                     navController  = navController,
-                    userRepository = userRepo
+                    userRepository = userRepo,
+                    onBackClick    = { navController.popBackStack() },
+                    onLoginClick   = { 
+                        navController.navigate(Screen.Login.route) {
+                            popUpTo(Screen.Welcome.route)
+                        }
+                    }
                 )
             }
 
-            // 4) Main tabs
-            composable(Screen.Home.route) { HomeScreen(navController) }
+            // 4) Main tabs - only accessible after login
+            composable(Screen.Home.route) { 
+                if (userViewModel.user != null) {
+                    HomeScreen(navController)
+                } else {
+                    navController.navigate(Screen.Login.route) {
+                        popUpTo(Screen.Home.route) { inclusive = true }
+                    }
+                }
+            }
             composable(Screen.Favourites.route) {
-                BookmarkScreen(
-                    onLogout = { /*...*/ },
-                    navController = navController
-                )
+                if (userViewModel.user != null) {
+                    BookmarkScreen(
+                        onLogout = { 
+                            userViewModel.logout()
+                            navController.navigate(Screen.Welcome.route) {
+                                popUpTo(0) { inclusive = true }
+                            }
+                        },
+                        navController = navController
+                    )
+                } else {
+                    navController.navigate(Screen.Login.route) {
+                        popUpTo(Screen.Favourites.route) { inclusive = true }
+                    }
+                }
             }
             composable(Screen.Grid.route) {
-                CategoryView(navController, repository = categoryRepo)
+                if (userViewModel.user != null) {
+                    CategoryView(navController, repository = categoryRepo)
+                } else {
+                    navController.navigate(Screen.Login.route) {
+                        popUpTo(Screen.Grid.route) { inclusive = true }
+                    }
+                }
             }
             composable(Screen.Profile.route) {
                 UserProfileScreen()
             }
             composable(Screen.Messages.route) {
-                val postVm: CreatePostViewModel = viewModel()
-                AdminDashboard(onMenuClick = { /*...*/ })
+                if (userViewModel.user != null) {
+                    val postVm: CreatePostViewModel = viewModel()
+                    AdminDashboard(onMenuClick = { /*...*/ })
+                } else {
+                    navController.navigate(Screen.Login.route) {
+                        popUpTo(Screen.Messages.route) { inclusive = true }
+                    }
+                }
             }
             composable(Screen.createCategory.route) {
-                CreateCategoryScreen(navController, repository = categoryRepo)
+                if (userViewModel.user != null) {
+                    CreateCategoryScreen(navController, repository = categoryRepo)
+                } else {
+                    navController.navigate(Screen.Login.route) {
+                        popUpTo(Screen.createCategory.route) { inclusive = true }
+                    }
+                }
             }
             composable(Screen.CreateNotification.route) {
                 NotificationScreen(navController, repository = notificationRepo)
-            }
-
-            composable(Screen.AdminDashboard.route) {
-                val postVm: CreatePostViewModel = viewModel()
-                AdminDashboard(onMenuClick = { /*...*/ })
             }
         }
     }
