@@ -10,18 +10,18 @@ import java.util.concurrent.TimeUnit
 
 interface NotificationApi {
 
-    @GET("notification/getnotifications")
+    @GET("notification/Allnotification")
     suspend fun getNotifications(): Response<List<notificationmodel>>
 
     @FormUrlEncoded
-    @POST("notification/notify-new-paper")
+    @POST("notification/createNotification")
     suspend fun createNotification(
         @Field("title") title: String,
         @Field("message") message: String
     ): Response<notificationmodel>
 
     @FormUrlEncoded
-    @PUT("/getnotifications/{notificationId}")
+    @PUT("getnotifications/{notificationId}")
     suspend fun editNotification(
         @Path("notificationId") notificationId: String,
         @Field("title") title: String,

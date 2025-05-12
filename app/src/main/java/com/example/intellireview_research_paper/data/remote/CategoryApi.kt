@@ -23,18 +23,18 @@ interface CategoryApi {
     ): Response<categorymodel>
 
     @FormUrlEncoded
-    @POST("/category/searchcategories/search")
+    @POST("category/searchcategories/search")
     suspend fun searchCategory(
         @Field("inputdata") inputData: String
     ): Response<List<categorymodel>>
 
-    @DELETE("/category/deletecategories/{id}")
+    @DELETE("category/deleteCategory/{id}")
     suspend fun deleteCategory(
         @Path("id") categoryId: String
     ): Response<Void>
 
     @FormUrlEncoded
-    @PUT("/editcategories/{id}")
+    @PUT("category/updateCategory/{id}")
     suspend fun editCategory(
         @Path("id") categoryId: String,
         @Field("name") name: String,
